@@ -1,0 +1,24 @@
+services:
+
+  db:
+    image: mysql:9.0.1
+    restart: always
+    stop_signal: SIGKILL
+    env_file:
+      - .env
+    networks:
+      - my_shop
+    ports:
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+    volumes:
+      - ./db_data/:/var/lib/mysql/
+    logging:
+      driver: json-file
+      options:
+        max-file: 5
+        max-size: 10m
+
+
+networks:
+  my_shop:
+    driver: bridge
