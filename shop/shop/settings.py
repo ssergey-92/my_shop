@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,3 +122,52 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGDIR_PATH = os_path.join(BASE_DIR, os_getenv("BASE_LOGGER_DIR_NAME"))
+os_makedirs(LOGDIR_PATH, exist_ok=True)
+LOGFILE_PATH = os_path.join(LOGDIR_PATH, os_getenv("SHOP_LOGGER_FILE_NAME"))
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format":
+                ">>> %(name)s | %(asctime)s | %(message)s",
+        },
+        "for_file": {
+            "format":
+                "%(levelname)s|%(asctime)s|%(name)s|%(pathname)s|%(message)s",
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": os_getenv("SHOP_LOGGER_CONSOLE_HANDLER_LEVEL"),
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "logfile": {
+            "level": os_getenv("SHOP_LOGGER_FILE_HANDLER_LEVEL"),
+            "class": "logging.handlers.RotatingFileHandler",
+            "formatter": "for_file",
+            "filename": LOGFILE_PATH,
+            "maxBytes": int(os_getenv("BASE_LOGGER_FILE_SIZE")),
+            "backupCount": int(os_getenv("BASE_LOGGER_BACKUP_COUNT")),
+        },
+    },
+    "root": {
+        "handlers": ["console", "logfile"],
+        "level": os_getenv("SHOP_LOGGER_LEVEL"),
+    },
+    # "loggers": {
+    #     "django.db.backends": {  # db
+    #         "handlers": ["console", "logfile"],
+    #         "level": "DEBUG",
+    #     },
+    # },
+}
