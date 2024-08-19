@@ -15,8 +15,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-file: 5
-        max-size: 10m
+        max-file: ${DOCKER_LOGGER_FILES}
+        max-size: ${DOCKER_LOGGER_FILE_SIZE}
 
 
 networks:
