@@ -1,11 +1,11 @@
 """Django settings for 'shop' project (Django 5.1)."""
 
 from pathlib import Path
-from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path
+from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path, environ
 
 # TODO temp for development, to be removed when project is completed
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os_getenv("SHOP_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os_getenv("SHOP_DEBUG")
+
+DEBUG = os_getenv("SHOP_DEBUG") == "True"
 
 ALLOWED_HOSTS = os_getenv("SHOP_ALLOWED_HOSTS").split(" ")
 
@@ -60,12 +61,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'shop.wsgi.application'
 
-
 # Database
-if os_getenv("SHOP_DEBUG"):
+if os_getenv("SHOP_DEBUG") == "True":
     db_host = os_getenv("SHOP_DB_DEV_HOST")
 else:
-    db_host = os_getenv("DC_SHOP_SERVICE_NAME")
+    db_host = os_getenv("DC_DB_SERVICE_NAME")
 
 DATABASES = {
     "default": {
@@ -80,7 +80,6 @@ DATABASES = {
         },
     }
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -143,7 +142,7 @@ LOGGING = {
     "handlers": {
         "console": {
             "level": os_getenv("SHOP_LOGGER_CONSOLE_HANDLER_LEVEL"),
-            "filters": ["require_debug_true"],
+            # "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
@@ -160,10 +159,4 @@ LOGGING = {
         "handlers": ["console", "logfile"],
         "level": os_getenv("SHOP_LOGGER_LEVEL"),
     },
-    # "loggers": {
-    #     "django.db.backends": {  # db
-    #         "handlers": ["console", "logfile"],
-    #         "level": "DEBUG",
-    #     },
-    # },
 }

@@ -1,5 +1,26 @@
 services:
 
+  shop:
+    build:
+      context: ./shop
+    stop_signal: SIGKILL
+    env_file:
+      - ./.env
+    networks:
+      - my_shop
+    ports:
+      - "80:80"
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKER_LOGGER_FILES}
+        max-size: ${DOCKER_LOGGER_FILE_SIZE}
+    volumes:
+      - ./shop/logs/:/shop/logs/
+    depends_on:
+      - db
+
+
   db:
     image: mysql:9.0.1
     restart: always
