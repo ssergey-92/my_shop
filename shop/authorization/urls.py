@@ -1,12 +1,12 @@
-"""URL configuration for 'auth' app of project 'shop'."""
+"""URL configuration for 'authorization' app of project 'shop'."""
 
 from django.urls import path
 
-from .apps import AuthConfig
+from .apps import AuthorizationConfig
 from .views import SignInView, SignOutView, SignUpView
 
 
-app_name = AuthConfig.name
+app_name = AuthorizationConfig.name
 
 urlpatterns = [
     path('sign-in', SignInView.as_view(), name="sign_in"),

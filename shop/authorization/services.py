@@ -13,7 +13,7 @@ from .models import create_new_user
 from .serializers import SignInSerializer, SignUpSerializer
 
 
-class HandleAuth:
+class HandleAuthorization:
     _authentication_error = {"error": "Username or password is incorrect!"}
     _existed_user_error = {"error": "Username is selected by other user!"}
     _parsing_error = {
@@ -83,6 +83,7 @@ class HandleAuth:
         if not user:
             return Response(cls._existed_user_error, cls._http_unsuccess)
 
+        login(request, user)
         app_logger.debug(f"{user=}")
         return Response(cls._successful_sign_up, cls._http_success)
 
