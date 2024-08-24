@@ -11,6 +11,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from .custom_log import app_logger
 from .models import create_new_user
 from .serializers import SignInSerializer, SignUpSerializer
+from user_profile.models import Profile
 
 
 class HandleAuthorization:
@@ -83,6 +84,8 @@ class HandleAuthorization:
         if not user:
             return Response(cls._existed_user_error, cls._http_unsuccess)
 
+
+        Profile.objects.create(user=user, full_name=user.first_name)
         login(request, user)
         app_logger.debug(f"{user=}")
         return Response(cls._successful_sign_up, cls._http_success)
