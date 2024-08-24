@@ -4,32 +4,33 @@ from pathlib import Path
 from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path, environ
 
 # TODO temp for development, to be removed when project is completed
-# from dotenv import load_dotenv
-# load_dotenv()
+if os_getenv("SHOP_DEBUG", "True") == "True":
+    from dotenv import load_dotenv
+    load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os_getenv("SHOP_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-
 DEBUG = os_getenv("SHOP_DEBUG") == "True"
 
 ALLOWED_HOSTS = os_getenv("SHOP_ALLOWED_HOSTS").split(" ")
-
+# CSRF_TRUSTED_ORIGINS = ['localhost']
 
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'rest_framework',
     'frontend',
-    'rest_framework'
+    'authorization.apps.AuthorizationConfig',
+    'user_profile.apps.UserProfileConfig',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -84,33 +85,36 @@ DATABASES = {
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 
 # Internationalization
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, Images) and Media files
 STATIC_URL = 'static/'
+MEDIA_ROOT = os_path.join(BASE_DIR, "media")
+if DEBUG is True:
+    MEDIA_URL = "media/"
+    STATIC_ROOT = os_path.join(BASE_DIR, 'frontend/static/')
+else:
+    STATIC_ROOT = os_path.join(BASE_DIR, "static")
 
 
 # Default primary key field type
@@ -158,5 +162,12 @@ LOGGING = {
     "root": {
         "handlers": ["console", "logfile"],
         "level": os_getenv("SHOP_LOGGER_LEVEL"),
+    },
+    "loggers": {
+        "django.db.backends": {  # db sql request in debug mode only!
+            "handlers": ["console", "logfile"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }

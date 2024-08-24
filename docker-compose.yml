@@ -17,6 +17,7 @@ services:
         max-size: ${DOCKER_LOGGER_FILE_SIZE}
     volumes:
       - ./shop/logs/:/shop/logs/
+      - ./shop/media/:/shop/media/
     depends_on:
       - db
 

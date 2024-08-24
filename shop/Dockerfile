@@ -11,10 +11,9 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY ./shop-frontend/frontend/ /usr/share/nginx/html/
 COPY supervisord.ini /etc/supervisor/conf.d/supervisord.ini
 COPY ./ .
-RUN pip install ./shop-frontend/dist/diploma_frontend-0.6.tar.gz
+RUN pip install ./frontend/dist/diploma_frontend-0.6.tar.gz
 
 ENV PYTHONPATH="/shop:${PYTHONPATH}"
 
