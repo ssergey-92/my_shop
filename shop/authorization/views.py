@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from .custom_log import app_logger
 from .services import HandleAuthorization
+from common.custom_logger import app_logger
 
 class SignInView(APIView):
 

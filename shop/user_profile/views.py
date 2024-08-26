@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .services import HandleProfile
-from .custom_log import app_logger
+from common.custom_logger import app_logger
 
 class FullProfileView(APIView):
     permission_classes = [IsAuthenticated]

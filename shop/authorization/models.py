@@ -3,7 +3,7 @@ from typing import Optional
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
-from .custom_log import app_logger
+from common.custom_logger import app_logger
 
 
 def create_new_user(user_details: dict) -> Optional[User]:

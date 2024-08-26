@@ -12,13 +12,14 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-from .custom_log import app_logger
+
 from .models import update_user_password, Profile
 from .serializers import (
     ChangePasswordSerializer,
     InProfileSerializer,
     OutProfileSerializer,
 )
+from common.custom_logger import app_logger
 
 class HandleProfile:
     _invalid_password_error = {"error": "Invalid user password!"}

@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 
 
-from .custom_log import app_logger
+
 from .models import create_new_user
 from .serializers import SignInSerializer, SignUpSerializer
+from common.custom_logger import app_logger
 from user_profile.models import Profile
 
 

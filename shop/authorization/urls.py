@@ -5,7 +5,6 @@ from django.urls import path
 from .apps import AuthorizationConfig
 from .views import SignInView, SignOutView, SignUpView
 
-
 app_name = AuthorizationConfig.name
 
 urlpatterns = [

@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 
-from .custom_log import app_logger
+from common.custom_logger import app_logger
 
 unavailable_profile_image = "Your profile photo is currently unavailable."
 several_profiles_error = "{total} profile found for user.id: {user_id}!"

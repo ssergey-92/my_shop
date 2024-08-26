@@ -163,6 +163,7 @@ LOGGING = {
     "root": {
         "handlers": ["console", "logfile"],
         "level": os_getenv("SHOP_LOGGER_LEVEL"),
+        "propagate": False,
     },
     "loggers": {
         "django.db.backends": {  # db sql request in debug mode only!
