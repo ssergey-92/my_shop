@@ -1,33 +1,26 @@
 from rest_framework import serializers
 
+from .models import Avatar, Profile
+
+class OutAvatarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avatar
+        fields = ["src", "alt"]
 
 
-class InAvatarSerializer(serializers.ModelSerializer):
-    src = serializers.CharField(allow_blank=False, required=True)
-    alt = serializers.CharField(allow_blank=False, required=True)
+class OutProfileSerializer(serializers.Serializer):
+    fullName = serializers.CharField(
+        allow_blank=True, required=True, source="full_name",
+    )
+    email = serializers.EmailField(
+        allow_blank=True, required=False, source="unique_email",
+    )
+    phone = serializers.CharField(
+        allow_blank=True, required=False, source="unique_phone",
+    )
+    avatar = OutAvatarSerializer(required=False)
 
-class InProfileSerializer(serializers.Serializer):
-    fullName = serializers.CharField(allow_blank=True, required=False)
-    email = serializers.EmailField(allow_blank=True, required=False)
-    phone = serializers.CharField(allow_blank=True, required=False)
-    avatar = InAvatarSerializer(required=False)
 
-class InChangePasswordSerializer(serializers.Serializer):
+class ChangePasswordSerializer(serializers.Serializer):
     currentPassword = serializers.CharField(allow_blank=False, required=True)
     newPassword = serializers.CharField(allow_blank=False, required=True)
-
-
-
-
-# class ProfileImageSerializer(ModelSerializer):
-#     class Meta:
-#         model = ProfileImage
-#         fields = ["src", "alt"]
-#
-#
-# class ProfileSerializer(ModelSerializer):
-#     avatar = ProfileImageSerializer()
-#
-#     class Meta:
-#         model = Profile
-#         fields = ["middle_name", "email", "phone", "avatar"]

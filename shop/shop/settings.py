@@ -110,8 +110,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images) and Media files
 STATIC_URL = 'static/'
 MEDIA_ROOT = os_path.join(BASE_DIR, "media")
+MEDIA_URL = "media/"
 if DEBUG is True:
-    MEDIA_URL = "media/"
+
     STATIC_ROOT = os_path.join(BASE_DIR, 'frontend/static/')
 else:
     STATIC_ROOT = os_path.join(BASE_DIR, "static")
