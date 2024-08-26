@@ -3,6 +3,7 @@
 from pathlib import Path
 from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path, environ
 
+
 # TODO temp for development, to be removed when project is completed
 if os_getenv("SHOP_DEBUG", "True") == "True":
     from dotenv import load_dotenv
@@ -40,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'request_logging.middleware.LoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'shop.urls'
@@ -166,9 +168,14 @@ LOGGING = {
         "propagate": False,
     },
     "loggers": {
-        "django.db.backends": {  # db sql request in debug mode only!
-            "handlers": ["console", "logfile"],
-            "level": "DEBUG",
+        # "django.db.backends": {  # db sql request in debug mode only!
+        #     "handlers": ["console", "logfile"],
+        #     "level": "DEBUG",
+        #     "propagate": False,
+        # },
+        'django.request': {
+            "handlers": ["console"],
+            "level": os_getenv("SHOP_LOGGER_LEVEL"),
             "propagate": False,
         },
     },

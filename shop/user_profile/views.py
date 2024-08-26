@@ -5,37 +5,24 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .services import HandleProfile
-from common.custom_logger import app_logger
 
 class FullProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.data=}")
-        response = HandleProfile.get_own_profile(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleProfile.get_own_profile(request)
 
     def post(self, request: Request) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.data=}")
-        response = HandleProfile.update_own_profile(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleProfile.update_own_profile(request)
 
 class ProfilePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.data=}")
-        response = HandleProfile.update_own_password(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleProfile.update_own_password(request)
 
 class ProfileAvatarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request: Request) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.data=}")
-        response = HandleProfile.update_own_avatar(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleProfile.update_own_avatar(request)

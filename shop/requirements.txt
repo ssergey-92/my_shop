@@ -8,3 +8,4 @@ pillow==10.4.0
 python-dotenv==1.0.1
 setuptools==72.2.0
 sqlparse==0.5.1
+django-request-logging==0.7.5

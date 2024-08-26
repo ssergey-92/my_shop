@@ -3,28 +3,18 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 
 from .services import HandleAuthorization
-from common.custom_logger import app_logger
 
 class SignInView(APIView):
 
     def post(self, request: Request, *args, **kwargs) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.body=}")
-        response = HandleAuthorization.sign_in(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleAuthorization.sign_in(request)
 
 class SignOutView(APIView):
 
     def post(self, request: Request, *args, **kwargs) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.body=}")
-        response = HandleAuthorization.sign_out(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleAuthorization.sign_out(request)
 
 class SignUpView(APIView):
 
     def post(self, request: Request, *args, **kwargs) -> Response:
-        app_logger.info(f"{request.method}, {request.path}, {request.body=}")
-        response = HandleAuthorization.sign_up(request)
-        app_logger.info(f"{response.status_code}, {response.data}")
-        return response
+        return HandleAuthorization.sign_up(request)
