@@ -16,7 +16,9 @@ SECRET_KEY = os_getenv("SHOP_SECRET_KEY")
 DEBUG = os_getenv("SHOP_DEBUG") == "True"
 
 ALLOWED_HOSTS = os_getenv("SHOP_ALLOWED_HOSTS").split(" ")
+INTERNAL_IPS = []
 # CSRF_TRUSTED_ORIGINS = ['localhost']
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -26,10 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'rest_framework',
-    'frontend',
-    'authorization.apps.AuthorizationConfig',
-    'user_profile.apps.UserProfileConfig',
+
+    "rest_framework",
+
+    "frontend",
+    "authorization.apps.AuthorizationConfig",
+    "user_profile.apps.UserProfileConfig",
 ]
 
 
@@ -41,8 +45,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'request_logging.middleware.LoggingMiddleware',
+
+    "request_logging.middleware.LoggingMiddleware",
 ]
+
+
+if os_getenv("SHOP_TESTING", None) != "True":
+    INTERNAL_IPS.extend(
+        os_getenv("SHOP_INTERNAL_IPS").split(" ")
+    )
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = 'shop.urls'
 
