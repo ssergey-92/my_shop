@@ -85,8 +85,6 @@ class HandleAuthorization:
         if not user:
             return Response(cls._existed_user_error, cls._http_unsuccess)
 
-
-        Profile.objects.create(user=user, full_name=user.first_name)
         login(request, user)
         app_logger.debug(f"{user=}")
         return Response(cls._successful_sign_up, cls._http_success)
