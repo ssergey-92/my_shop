@@ -16,6 +16,9 @@ class Profile(models.Model):
     unique_email = models.EmailField(unique=True, null=True)
     unique_phone = models.CharField(unique=True, null=True, max_length=12)
 
+    def __str__(self):
+        return f"Profile # {self.id} of user: {self.user.username}"
+
     def set_new_avatar(self, avatar_file: InMemoryUploadedFile):
         alt = unavailable_file.format(file_name=avatar_file.name)
         if hasattr(self, "avatar"):
@@ -56,6 +59,9 @@ class Avatar(models.Model):
         blank=False,
         null=False,
     )
+
+    def __str__(self):
+        return f"Avatar url: {self.src} of user: {self.profile.user.username}"
 
     def custom_update(self, src: InMemoryUploadedFile, alt: str):
         # Essential to save exactly avatar instance for saving image in sys.
