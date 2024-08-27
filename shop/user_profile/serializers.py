@@ -1,16 +1,11 @@
-import re
-
 from rest_framework import serializers
 
 from .models import Avatar
+from .validators import (
+    validate_profile_unique_phone,
+    validate_profile_full_name,
+)
 
-invalid_phone_number = (
-    "Invalid phone number format! ex. +79876543210 or 89876543210"
-)
-full_name_error = (
-    "Full name should contain only letters and space! "
-    "Min word len is 2 letters!"
-)
 
 class OutAvatarSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,24 +21,19 @@ class InProfileSerializer(serializers.Serializer):
 
     def validate_fullName(self, value: str):
         full_name = value.strip()
-        full_name_pattern = "^[a-zA-ZА-Яа-я ]{2,}$"
-        if re.match(full_name_pattern, full_name) and not full_name.isspace():
+        validation_error = validate_profile_full_name(full_name)
+        if not validation_error:
             return full_name
 
-        raise serializers.ValidationError(full_name_error)
+        raise serializers.ValidationError(validation_error)
 
     def validate_phone(self, value: str):
         phone = value.strip()
-        if (
-                phone.startswith("+") and
-                len(phone) == 12 and
-                phone.lstrip("+").isdigit()
-        ) or (
-                len(phone) == 11 and phone.isdigit()
-        ):
+        validation_error = validate_profile_unique_phone(phone)
+        if not validation_error:
             return phone
 
-        raise serializers.ValidationError(invalid_phone_number)
+        raise serializers.ValidationError(validation_error)
 
 
 class OutProfileSerializer(serializers.Serializer):

@@ -3,7 +3,6 @@
 from pathlib import Path
 from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path, environ
 
-
 # TODO temp for development, to be removed when project is completed
 if os_getenv("SHOP_DEBUG", "True") == "True":
     from dotenv import load_dotenv
@@ -193,3 +192,6 @@ LOGGING = {
         },
     },
 }
+
+SUPPORTED_IMAGE_EXTENSIONS = os_getenv("SHOP_SUPPORTED_IMAGE_EXTENSIONS").split(' ')
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(os_getenv("SHOP_DATA_UPLOAD_MAX_MEMORY_SIZE"))

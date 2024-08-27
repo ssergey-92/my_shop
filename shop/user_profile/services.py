@@ -1,9 +1,6 @@
-from os import getenv as os_getenv, remove as os_remove
-from typing import Optional
-
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.models import User
-from django.utils.datastructures import MultiValueDict
+from django.db import IntegrityError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -12,25 +9,22 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 
-
 from .models import update_user_password, Profile
 from .serializers import (
     ChangePasswordSerializer,
     InProfileSerializer,
     OutProfileSerializer,
 )
+from .validators import validate_avatar_src
 from common.custom_logger import app_logger
+from common.utils import delete_file_from_sys
+
 
 class HandleProfile:
     _invalid_password_error = {"error": "Invalid user password!"}
     _profile_error = {"error": "User profile is not found!"}
-    _avatar_image_missing_error = {
-        "error": "File is not attached under key 'avatar'"
-    }
-    _avatar_image_size_error = {"error": "Image size is bigger than 2 MB!"}
     _successful_psw_update = {"msg": "Password was successfully changed."}
     _successful_avatar_update = {"msg": "Avatar was successfully changed."}
-    _successful_profile_update = {"msg": "Profile was successfully updated."}
     _http_bad_request = HTTP_400_BAD_REQUEST
     _http_success = HTTP_200_OK
     _http_internal_error = HTTP_500_INTERNAL_SERVER_ERROR
@@ -45,14 +39,15 @@ class HandleProfile:
                 )
             except AttributeError as exc:
                 app_logger.error(f"Error while serializing Profile: {exc}")
-        app_logger.error(cls._profile_error)
+        else:
+            app_logger.error(cls._profile_error)
         return Response(cls._profile_error, cls._http_internal_error)
 
     @classmethod
     def update_own_avatar(cls, request: Request) -> Response:
-        image_error = cls._check_avatar_image(request.FILES)
-        if image_error:
-            return Response(image_error, cls._http_bad_request)
+        validation_error = validate_avatar_src(request.FILES["avatar"])
+        if validation_error:
+            return Response(validation_error, cls._http_bad_request)
 
         profile = Profile.get_by_user_id_with_avatar(request.user.id)
         if not profile:
@@ -60,7 +55,7 @@ class HandleProfile:
             Response(cls._profile_error, cls._http_internal_error)
 
         if hasattr(profile, "avatar"):
-            cls._delete_file_from_sys(profile.avatar.src.path)
+            delete_file_from_sys(profile.avatar.src.path)
         profile.set_new_avatar(request.FILES["avatar"])
         return Response(cls._successful_avatar_update, cls._http_success)
 
@@ -75,14 +70,16 @@ class HandleProfile:
 
         profile = Profile.objects.get(user_id=request.user.id)
         if not profile:
-            app_logger.error(cls._profile_error)
             Response(cls._profile_error, cls._http_internal_error)
 
-        profile_data = profile_data.validated_data
-        profile.full_name = profile_data["fullName"]
-        profile.unique_email = profile_data["email"]
-        profile.unique_phone = profile_data["phone"]
-        profile.save()
+        try:
+            profile.full_name = profile_data.validated_data["fullName"]
+            profile.unique_email = profile_data.validated_data["email"]
+            profile.unique_phone = profile_data.validated_data["phone"]
+            profile.save()
+        except IntegrityError as exc:
+            return Response({"error": exc.args}, cls._http_bad_request)
+
         return Response(OutProfileSerializer(profile).data, cls._http_success)
 
     @classmethod
@@ -103,33 +100,10 @@ class HandleProfile:
             user, password_details.validated_data["newPassword"],
         )
         cls._reset_user_session(request, user)
-        app_logger.info(f"Password was changed for {user.id=}")
         return Response(cls._successful_psw_update, cls._http_success)
-
-    @classmethod
-    def _check_avatar_image(
-            cls, request_files: Optional[MultiValueDict],
-    ) -> Optional[dict]:
-        error_msg = None
-        if not request_files["avatar"]:
-            error_msg =  cls._avatar_image_missing_error
-        elif (
-                request_files["avatar"].size >
-                int(os_getenv("SHOP_MEDIA_FILE_MAX_SIZE"))
-        ):
-            error_msg = cls._avatar_image_size_error
-
-        return error_msg
-
-    @staticmethod
-    def _delete_file_from_sys(file_path: str) -> None:
-        try:
-            os_remove(file_path)
-            app_logger.debug(f"file as {file_path=} was deleted!")
-        except FileNotFoundError:
-            app_logger.error(f"{file_path=} is not existed in sys!")
 
     @staticmethod
     def _reset_user_session(request: Request, user: User) -> None:
         logout(request)
         login(request, user)
+        app_logger.info(f"Session was reset for {user.id=}")
