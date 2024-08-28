@@ -1,5 +1,4 @@
-import json
-from json import JSONDecodeError
+from json import JSONDecodeError, loads as json_loads
 from typing import Optional
 
 from django.contrib.auth import authenticate, login, logout
@@ -7,15 +6,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 
-
-
 from .models import create_new_user
 from .serializers import SignInSerializer, SignUpSerializer
 from common.custom_logger import app_logger
-from user_profile.models import Profile
 
 
 class HandleAuthorization:
+    """Class for authorization related endpoints"""
+
     _authentication_error = {"error": "Username or password is incorrect!"}
     _existed_user_error = {"error": "Username is selected by other user!"}
     _parsing_error = {
@@ -34,6 +32,19 @@ class HandleAuthorization:
 
     @classmethod
     def sign_in(cls, request: Request) -> Response:
+        """Handle logic for signing in user.
+
+        Check that user is not authenticates, parse and validate data from
+        request and check user's credential. Sign in user if all checks are
+        passes. Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         if request.user.is_authenticated:
             return Response(cls._sign_in_error, cls._http_unsuccess)
 
@@ -57,6 +68,18 @@ class HandleAuthorization:
 
     @classmethod
     def sign_out(cls, request: Request) -> Response:
+        """Handle logic for signing out user.
+
+        Check that user is authenticates and then sign out.
+        Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         if request.user.is_authenticated:
             logout(request)
             return Response(cls._successful_sign_out, cls._http_success)
@@ -66,6 +89,19 @@ class HandleAuthorization:
 
     @classmethod
     def sign_up(cls, request: Request) -> Response:
+        """Handle logic for signing up user.
+
+        Check that user is not authenticates, parse and validate data from
+        request. Sign up and sign in user if all checks are passes.
+        Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         if request.user.is_authenticated:
             return Response(cls._sign_up_error, cls._http_unsuccess)
 
@@ -93,8 +129,17 @@ class HandleAuthorization:
     def _get_data_from_post_request_query_str(
             request: Request,
     ) -> Optional[dict]:
+        """Get query string data from POST request.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            Optional[dict]: Query string data.
+
+        """
         try:
-            parsed_data = json.loads(request.body)
+            parsed_data = json_loads(request.body)
             app_logger.debug(f"{parsed_data=}")
             return parsed_data
         except (TypeError, JSONDecodeError) as exc:
