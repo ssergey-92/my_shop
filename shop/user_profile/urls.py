@@ -1,4 +1,4 @@
-"""URL configuration for 'authorization' app of project 'shop'."""
+"""App URl configuration module."""
 
 from django.urls import path
 

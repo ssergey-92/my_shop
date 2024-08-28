@@ -1,3 +1,5 @@
+"""Handle business logic for app endpoints"""
+
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -21,6 +23,8 @@ from common.utils import delete_file_from_sys
 
 
 class HandleProfile:
+    """Class for handling logic for Profile related endpoints"""
+
     _invalid_password_error = {"error": "Invalid user password!"}
     _profile_error = {"error": "User profile is not found!"}
     _successful_psw_update = {"msg": "Password was successfully changed."}
@@ -31,6 +35,19 @@ class HandleProfile:
 
     @classmethod
     def get_own_profile(cls, request: Request) -> Response:
+        """ Handle logic for getting user's details.
+
+        Check that profile is existed for user from request and return
+        corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
+
         profile = Profile.get_by_user_id_with_avatar(request.user.id)
         if profile:
             try:
@@ -45,6 +62,19 @@ class HandleProfile:
 
     @classmethod
     def update_own_avatar(cls, request: Request) -> Response:
+        """ Handle logic for updating user's avatar.
+
+        Validate request data, check that profile is existed for user from
+        request and update user's avatar in case all checks passed.
+        Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         validation_error = validate_avatar_src(request.FILES["avatar"])
         if validation_error:
             return Response(validation_error, cls._http_bad_request)
@@ -61,6 +91,19 @@ class HandleProfile:
 
     @classmethod
     def update_own_profile(cls, request: Request) -> Response:
+        """ Handle logic for updating user profile details.
+
+        Validate request data, check that profile is existed for user from
+        request and update profile in case all checks passed.
+        Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         request.data.pop("avatar")
         profile_data = InProfileSerializer(data=request.data)
         if not profile_data.is_valid():
@@ -84,10 +127,24 @@ class HandleProfile:
 
     @classmethod
     def update_own_password(cls, request: Request) -> Response:
+        """ Handle logic for updating user password.
+
+        Validate request data, check current password for user from request
+        and update password and session in case all checks passed.
+        Return corresponding response.
+
+        Args:
+            request (Request): Http request object.
+
+        Returns:
+            response (Response): Http response object.
+
+        """
         password_details = ChangePasswordSerializer(data=request.data)
         if not password_details.is_valid():
-            validation_error = {"error": password_details.errors}
-            return Response(validation_error, cls._http_bad_request)
+            return Response(
+                {"error": password_details.errors}, cls._http_bad_request,
+            )
 
         user = authenticate(
             username=request.user.username,
@@ -104,6 +161,13 @@ class HandleProfile:
 
     @staticmethod
     def _reset_user_session(request: Request, user: User) -> None:
+        """Reset session details for user.
+
+        Args:
+            request (Request): Http request object.
+            user (User): User instance.
+
+        """
         logout(request)
         login(request, user)
         app_logger.info(f"Session was reset for {user.id=}")

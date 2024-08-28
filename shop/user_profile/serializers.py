@@ -1,3 +1,5 @@
+"""App serializers for django rest framework."""
+
 from rest_framework import serializers
 
 from .models import Avatar
@@ -7,19 +9,23 @@ from .validators import (
 )
 
 
-class OutAvatarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Avatar
-        fields = ["src", "alt"]
-
-
 class InProfileSerializer(serializers.Serializer):
+    """Class for validating Profile data."""
+
     fullName = serializers.CharField(allow_blank=False, required=True)
     email = serializers.EmailField(allow_blank=False, required=True)
     phone= serializers.CharField(allow_blank=False, required=False)
-    avatar = OutAvatarSerializer(required=False, allow_null=True)
 
-    def validate_fullName(self, value: str):
+    def validate_fullName(self, value: str) -> str:
+        """Extra validation for fullName field.
+
+        Args:
+            value (str): Full Name
+
+        Returns:
+            str: Full name
+
+        """
         full_name = value.strip()
         validation_error = validate_profile_full_name(full_name)
         if not validation_error:
@@ -27,7 +33,16 @@ class InProfileSerializer(serializers.Serializer):
 
         raise serializers.ValidationError(validation_error)
 
-    def validate_phone(self, value: str):
+    def validate_phone(self, value: str) -> str:
+        """Extra validation for phone field.
+
+        Args:
+            value (str): Phone number
+
+        Returns:
+            str: Phone numbere
+
+        """
         phone = value.strip()
         validation_error = validate_profile_unique_phone(phone)
         if not validation_error:
@@ -36,7 +51,17 @@ class InProfileSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
 
+class OutAvatarSerializer(serializers.ModelSerializer):
+    """Class for serializing Avatar object."""
+
+    class Meta:
+        model = Avatar
+        fields = ["src", "alt"]
+
+
 class OutProfileSerializer(serializers.Serializer):
+    """Class for serializing Profile object."""
+
     fullName = serializers.CharField(
         allow_blank=True, required=True, source="full_name",
     )
@@ -50,5 +75,7 @@ class OutProfileSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    """Class for validating password details."""
+
     currentPassword = serializers.CharField(allow_blank=False, required=True)
     newPassword = serializers.CharField(allow_blank=False, required=True)
