@@ -14,7 +14,7 @@ class InProfileSerializer(serializers.Serializer):
 
     fullName = serializers.CharField(allow_blank=False, required=True)
     email = serializers.EmailField(allow_blank=False, required=True)
-    phone= serializers.CharField(allow_blank=False, required=False)
+    phone = serializers.CharField(allow_blank=False, required=False)
 
     def validate_fullName(self, value: str) -> str:
         """Extra validation for fullName field.
@@ -63,13 +63,19 @@ class OutProfileSerializer(serializers.Serializer):
     """Class for serializing Profile object."""
 
     fullName = serializers.CharField(
-        allow_blank=True, required=True, source="full_name",
+        allow_blank=True,
+        required=True,
+        source="full_name",
     )
     email = serializers.EmailField(
-        allow_blank=True, required=False, source="unique_email",
+        allow_blank=True,
+        required=False,
+        source="unique_email",
     )
     phone = serializers.CharField(
-        allow_blank=True, required=False, source="unique_phone",
+        allow_blank=True,
+        required=False,
+        source="unique_phone",
     )
     avatar = OutAvatarSerializer(required=False)
 

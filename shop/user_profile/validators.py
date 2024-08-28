@@ -17,10 +17,10 @@ full_name_error = (
 image_missing_error = "File is not attached!"
 image_size_error = "Image size is bigger than 2 MB!"
 image_unsupported_error = (
-    f"Your image extension is unsupported! Supported formats "
+    f"Your image extension is unsupported! Supported formats"
     f"{settings.SUPPORTED_IMAGE_EXTENSIONS}"
 )
-image_extension_error = f"Image name should contain extension! "
+image_extension_error = f"Image name should contain extension!"
 
 
 def validate_profile_full_name(full_name: str) -> Optional[str]:
@@ -44,13 +44,13 @@ def validate_profile_unique_phone(phone: str) -> Optional[str]:
     """Check that phone has correct format for Profile.unique_phone field.
 
     Args:
-        full_name (str): Full name
+        phone (str):  phone number
 
     Returns
         Optional[str]: validation error details
 
     """
-    correct_phone_pattern = r'^\+\d{11}$'
+    correct_phone_pattern = r"^\+\d{11}$"
     if not re_match(correct_phone_pattern, phone):
         return invalid_phone_number_error
 
@@ -58,7 +58,7 @@ def validate_profile_unique_phone(phone: str) -> Optional[str]:
 
 
 def validate_avatar_src(
-        image: Optional[InMemoryUploadedFile],
+    image: Optional[InMemoryUploadedFile],
 ) -> Optional[str]:
     """Check that image_file has correct format for Avatar.src field.
 
@@ -77,8 +77,8 @@ def validate_avatar_src(
     try:
         extension = image.name.rsplit(".", 1)
         if (
-                extension == 0 or
-                extension[1] not in settings.SUPPORTED_IMAGE_EXTENSIONS
+            extension == 0
+            or extension[1] not in settings.SUPPORTED_IMAGE_EXTENSIONS
         ):
             return image_unsupported_error
     except IndexError:

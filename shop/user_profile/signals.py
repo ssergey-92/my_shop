@@ -10,7 +10,7 @@ from .models import Profile
 
 @receiver(post_save, sender=User)
 def create_user_profile(
-        sender: ModelBase, instance: User, created: bool, **kwargs,
+    sender: ModelBase, instance: User, created: bool, **kwargs,
 ) -> None:
     """Create Profile instance for user when received signal User post_save.
 

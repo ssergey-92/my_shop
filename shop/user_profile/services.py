@@ -35,7 +35,7 @@ class HandleProfile:
 
     @classmethod
     def get_own_profile(cls, request: Request) -> Response:
-        """ Handle logic for getting user's details.
+        """Handle logic for getting user's details.
 
         Check that profile is existed for user from request and return
         corresponding response.
@@ -62,7 +62,7 @@ class HandleProfile:
 
     @classmethod
     def update_own_avatar(cls, request: Request) -> Response:
-        """ Handle logic for updating user's avatar.
+        """Handle logic for updating user's avatar.
 
         Validate request data, check that profile is existed for user from
         request and update user's avatar in case all checks passed.
@@ -91,7 +91,7 @@ class HandleProfile:
 
     @classmethod
     def update_own_profile(cls, request: Request) -> Response:
-        """ Handle logic for updating user profile details.
+        """Handle logic for updating user profile details.
 
         Validate request data, check that profile is existed for user from
         request and update profile in case all checks passed.
@@ -127,7 +127,7 @@ class HandleProfile:
 
     @classmethod
     def update_own_password(cls, request: Request) -> Response:
-        """ Handle logic for updating user password.
+        """Handle logic for updating user password.
 
         Validate request data, check current password for user from request
         and update password and session in case all checks passed.
@@ -148,7 +148,7 @@ class HandleProfile:
 
         user = authenticate(
             username=request.user.username,
-            password=password_details.validated_data["currentPassword"]
+            password=password_details.validated_data["currentPassword"],
         )
         if not user:
             return Response(cls._invalid_password_error, cls._http_bad_request)

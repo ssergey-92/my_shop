@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from .services import HandleProfile
 
+
 class FullProfileView(APIView):
     """Class FullProfileView. Require that user was signed in."""
 
@@ -22,6 +23,7 @@ class FullProfileView(APIView):
 
         return HandleProfile.update_own_profile(request)
 
+
 class ProfilePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -29,6 +31,7 @@ class ProfilePasswordView(APIView):
         """Update password for user from request."""
 
         return HandleProfile.update_own_password(request)
+
 
 class ProfileAvatarView(APIView):
     permission_classes = [IsAuthenticated]

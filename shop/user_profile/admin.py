@@ -15,9 +15,9 @@ from .models import Profile
 
 
 class ProfileInline(admin.StackedInline):
-    """ Class Profile Inline for django admin panel."""
+    """Class Profile Inline for django admin panel."""
 
-    model =Profile
+    model = Profile
     form = ProfileForm
     fields = (
         "full_name",
@@ -26,7 +26,7 @@ class ProfileInline(admin.StackedInline):
         "get_avatar_image",
         "avatar_src",
     )
-    readonly_fields = ('get_avatar_image',)
+    readonly_fields = ("get_avatar_image",)
     verbose_name = "Personal info"
     can_delete = False
     extra = 0
@@ -53,14 +53,14 @@ class ProfileInline(admin.StackedInline):
             Union[str, SafeString]: Avatar image if existed else msg.
 
         """
-        if hasattr(obj, 'avatar') and obj.avatar.src:
+        if hasattr(obj, "avatar") and obj.avatar.src:
             return format_html(
                 '<img src="{}" style="max-width: 200px; max-height: 200px;" />',
                 obj.avatar.src.url,
             )
         return "Upload your avatar below"
 
-    get_avatar_image.short_description = 'Avatar'
+    get_avatar_image.short_description = "Avatar"
 
 
 class CustomUserAdmin(UserAdmin):
@@ -69,11 +69,12 @@ class CustomUserAdmin(UserAdmin):
     inlines = [ProfileInline]
     list_display = ("username", "full_name", "is_superuser", "is_staff")
     list_display_links = ("username", "full_name")
-    list_filter =  ("is_active", "is_superuser", "is_staff")
+    list_filter = ("is_active", "is_superuser", "is_staff")
     ordering = ["pk"]
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        ("Permissions",
+        (
+            "Permissions",
             {
                 "fields": (
                     "is_active",
@@ -97,10 +98,9 @@ class CustomUserAdmin(UserAdmin):
 
         """
         return (
-            User.objects.
-            select_related("profile").
-            select_related("profile__avatar").
-            all()
+            User.objects.select_related("profile")
+            .select_related("profile__avatar")
+            .all()
         )
 
     def full_name(self, obj: User) -> Optional[str]:
@@ -115,7 +115,7 @@ class CustomUserAdmin(UserAdmin):
         """
         return obj.profile.full_name
 
-    full_name.short_description = 'FULL NAME'
+    full_name.short_description = "FULL NAME"
 
 
 admin.site.unregister(User)

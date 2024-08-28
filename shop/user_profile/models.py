@@ -43,7 +43,7 @@ class Profile(models.Model):
             Avatar.objects.create(profile=self, src=avatar_file, alt=alt)
 
     @classmethod
-    def get_by_user_id_with_avatar(cls, user_id: int) -> Optional['Profile']:
+    def get_by_user_id_with_avatar(cls, user_id: int) -> Optional["Profile"]:
         """Get profile with select related Avatar object.
 
         Args:
@@ -121,6 +121,7 @@ class Avatar(models.Model):
         self.src = src
         self.alt = alt
         self.save()
+
 
 def update_user_password(user: User, new_password: str) -> None:
     """Update User password.

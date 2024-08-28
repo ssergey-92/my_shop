@@ -88,5 +88,4 @@ class ProfileForm(forms.ModelForm):
                 delete_file_from_sys(profile.avatar.src.path)
             profile.set_new_avatar(avatar_src)
 
-
         return profile

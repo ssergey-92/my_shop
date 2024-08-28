@@ -12,12 +12,8 @@ urlpatterns = [
     path(
         "profile/password",
         ProfilePasswordView.as_view(),
-        name="profile_password"
+        name="profile_password",
     ),
-    path(
-        "profile/avatar",
-        ProfileAvatarView.as_view(),
-        name="profile_avatar"
-    ),
+    path("profile/avatar", ProfileAvatarView.as_view(), name="profile_avatar"),
     path("profile", FullProfileView.as_view(), name="profile_full"),
 ]
