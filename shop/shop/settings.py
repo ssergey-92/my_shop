@@ -180,13 +180,13 @@ LOGGING = {
         "propagate": False,
     },
     "loggers": {
-        # "django.db.backends": {  # db sql request in debug mode only!
+        # "django.db.backends": {  # TODO  db sql request in debug mode only!
         #     "handlers": ["console", "logfile"],
         #     "level": "DEBUG",
         #     "propagate": False,
         # },
         'django.request': {
-            "handlers": ["console"],
+            "handlers": ["console"], # TODO add file handler for production
             "level": os_getenv("SHOP_LOGGER_LEVEL"),
             "propagate": False,
         },

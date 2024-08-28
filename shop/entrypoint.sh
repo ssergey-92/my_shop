@@ -18,9 +18,14 @@ echo "Running migrations..."
 python manage.py migrate --noinput
 
 
-# Collect static files (only needed for production)
+# Collect static files
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
+
+
+# Loading fixtures of My_Shop in MySQL DB
+echo "Loading fixtures in DB..."
+python manage.py loaddata ./fixtures/my_shop_data.json
 
 
 # Starting NGINX, GUNICORN and Django app My_Shop
