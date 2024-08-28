@@ -86,7 +86,6 @@ class HandleAuthorization:
         else:
             return Response(cls._sign_out_error, cls._http_unsuccess)
 
-
     @classmethod
     def sign_up(cls, request: Request) -> Response:
         """Handle logic for signing up user.
@@ -127,7 +126,7 @@ class HandleAuthorization:
 
     @staticmethod
     def _get_data_from_post_request_query_str(
-            request: Request,
+        request: Request,
     ) -> Optional[dict]:
         """Get query string data from POST request.
 

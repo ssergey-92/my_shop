@@ -9,6 +9,7 @@ class SignInSerializer(serializers.Serializer):
     username = serializers.CharField(allow_blank=False, required=True)
     password = serializers.CharField(allow_blank=False, required=True)
 
+
 class SignUpSerializer(serializers.Serializer):
     """Class for validating user sign up details."""
 
