@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "frontend",
     "authorization.apps.AuthorizationConfig",
     "user_profile.apps.UserProfileConfig",
+    "products.apps.ProductsConfig",
 ]
 
 
@@ -45,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    "request_logging.middleware.LoggingMiddleware",
+    # "request_logging.middleware.LoggingMiddleware",
 ]
 
 
@@ -96,6 +97,11 @@ DATABASES = {
     }
 }
 
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -126,14 +132,9 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = os_path.join(BASE_DIR, "media")
 MEDIA_URL = "media/"
 if DEBUG is True:
-
     STATIC_ROOT = os_path.join(BASE_DIR, 'frontend/static/')
 else:
     STATIC_ROOT = os_path.join(BASE_DIR, "static")
-
-
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Logger setting for project
@@ -146,7 +147,8 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format":
-                ">>> %(name)s | %(asctime)s | %(message)s",
+                # ">>> %(name)s | %(asctime)s | %(message)s",
+                "%(name)s|%(pathname)s|%(message)s"
         },
         "for_file": {
             "format":
@@ -191,6 +193,17 @@ LOGGING = {
             "propagate": False,
         },
     },
+}
+
+# Rest framework settings
+REST_FRAMEWORK = {
+    # "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # "DEFAULT_FILTER_BACKENDS": [
+    #     "django_filters.rest_framework.DjangoFilterBackend"
+    # ],
+    "DEFAULT_PAGINATION_CLASS":
+        "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 SUPPORTED_IMAGE_EXTENSIONS = os_getenv("SHOP_SUPPORTED_IMAGE_EXTENSIONS").split(' ')
