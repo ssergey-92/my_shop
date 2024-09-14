@@ -11,7 +11,6 @@ from .validators import (
     validate_profile_full_name,
     validate_profile_unique_phone,
 )
-from common.utils import delete_file_from_sys
 from common.validators import validate_image_src
 
 class ProfileForm(forms.ModelForm):
@@ -83,8 +82,6 @@ class ProfileForm(forms.ModelForm):
         avatar_src = self.cleaned_data.pop("avatar_src", None)
         profile = super(ProfileForm, self).save()
         if avatar_src:
-            if hasattr(profile, "avatar"):
-                delete_file_from_sys(profile.avatar.src.path)
             profile.set_new_avatar(avatar_src)
 
         return profile

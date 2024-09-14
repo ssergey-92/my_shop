@@ -19,7 +19,6 @@ from .serializers import (
 )
 
 from common.custom_logger import app_logger
-from common.utils import delete_file_from_sys
 from common.validators import validate_image_src
 
 class HandleProfile:
@@ -39,12 +38,6 @@ class HandleProfile:
 
         Check that profile is existed for user from request and return
         corresponding response.
-
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
 
         """
 
@@ -68,12 +61,6 @@ class HandleProfile:
         request and update user's avatar in case all checks passed.
         Return corresponding response.
 
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
-
         """
         validation_error = validate_image_src(request.FILES["avatar"])
         if validation_error:
@@ -84,8 +71,6 @@ class HandleProfile:
             app_logger.error(cls._profile_error)
             Response(cls._profile_error, cls._http_internal_error)
 
-        if hasattr(profile, "avatar"):
-            delete_file_from_sys(profile.avatar.src.path)
         profile.set_new_avatar(request.FILES["avatar"])
         return Response(cls._successful_avatar_update, cls._http_success)
 
@@ -96,12 +81,6 @@ class HandleProfile:
         Validate request data, check that profile is existed for user from
         request and update profile in case all checks passed.
         Return corresponding response.
-
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
 
         """
         request.data.pop("avatar")
@@ -133,12 +112,6 @@ class HandleProfile:
         and update password and session in case all checks passed.
         Return corresponding response.
 
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
-
         """
         password_details = ChangePasswordSerializer(data=request.data)
         if not password_details.is_valid():
@@ -161,13 +134,8 @@ class HandleProfile:
 
     @staticmethod
     def _reset_user_session(request: Request, user: User) -> None:
-        """Reset session details for user.
+        """Reset session details for user."""
 
-        Args:
-            request (Request): Http request object.
-            user (User): User instance.
-
-        """
         logout(request)
         login(request, user)
         app_logger.info(f"Session was reset for {user.id=}")
