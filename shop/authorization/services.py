@@ -38,12 +38,6 @@ class HandleAuthorization:
         request and check user's credential. Sign in user if all checks are
         passes. Return corresponding response.
 
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
-
         """
         try:
             if request.user.is_authenticated:
@@ -77,12 +71,6 @@ class HandleAuthorization:
         Check that user is authenticates and then sign out.
         Return corresponding response.
 
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
-
         """
         try:
             if request.user.is_authenticated:
@@ -101,12 +89,6 @@ class HandleAuthorization:
         Check that user is not authenticates, parse and validate data from
         request. Sign up and sign in user if all checks are passes.
         Return corresponding response.
-
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            response (Response): Http response object.
 
         """
         try:
@@ -138,15 +120,8 @@ class HandleAuthorization:
 
     @staticmethod
     def _get_query_params_from_post_request(request: Request) -> Optional[dict]:
-        """Get query string params from POST request.
+        """Get query string params from POST request."""
 
-        Args:
-            request (Request): Http request object.
-
-        Returns:
-            Optional[dict]: Query string data.
-
-        """
         try:
             parsed_data = json_loads(request.body)
             app_logger.debug(f"{parsed_data=}")
