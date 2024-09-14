@@ -20,6 +20,8 @@ packaging = "24.1"
 sqlparse = "0.5.1"
 django-request-logging = "0.7.5"
 django-debug-toolbar = "4.4.6"
+django-filter = "24.3"
+django-redis = "5.4.0"
 
 
 [build-system]
