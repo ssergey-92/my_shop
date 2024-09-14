@@ -32,27 +32,13 @@ class ProfileInline(admin.StackedInline):
     extra = 0
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        """Get query set with select related object Avatar.
+        """Get query set with select related object Avatar."""
 
-        Args:
-            request (HttpRequest): Http request object.
-
-        Returns:
-            QuerySet: Profiles query set.
-
-        """
         return Profile.objects.select_related("avatar").all()
 
     def get_avatar_image(self, obj: Profile) -> Union[str, SafeString]:
-        """Create extra read only field with avatar image if existed.
+        """Create extra read only field with avatar image if existed."""
 
-        Args:
-            obj (Profile): Profile object.
-
-        Returns:
-            Union[str, SafeString]: Avatar image if existed else msg.
-
-        """
         if hasattr(obj, "avatar") and obj.avatar.src:
             return format_html(
                 '<img src="{}" style="max-width: 200px; max-height: 200px;" />',
@@ -88,15 +74,8 @@ class CustomUserAdmin(UserAdmin):
     )
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        """Get query set with select related objects Profile and Avatar.
+        """Get query set with select related objects Profile and Avatar."""
 
-        Args:
-            request (HttpRequest): Http request object.
-
-        Returns:
-            QuerySet: Users query set.
-
-        """
         return (
             User.objects.select_related("profile")
             .select_related("profile__avatar")
@@ -104,15 +83,8 @@ class CustomUserAdmin(UserAdmin):
         )
 
     def full_name(self, obj: User) -> Optional[str]:
-        """Create extra field with user's full name.
+        """Create extra field with user's full name."""
 
-        Args:
-            obj (User): User object.
-
-        Returns:
-             Optional[str]: user's full name
-
-        """
         return obj.profile.full_name
 
     full_name.short_description = "FULL NAME"

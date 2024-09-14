@@ -21,20 +21,12 @@ class Profile(models.Model):
     unique_phone = models.CharField(unique=True, null=True, max_length=12)
 
     def __str__(self) -> str:
-        """String representation of Profile object.
+        """String representation of Profile object."""
 
-        Returns:
-            str: String representation of Profile object.
-
-        """
         return f"Profile # {self.id} of user: {self.user.username}"
 
     def set_new_avatar(self, avatar_file: InMemoryUploadedFile) -> None:
-        """Save or update avatar for profile.
-
-        Args:
-            avatar_file (InMemoryUploadedFile): Avatar image
-        """
+        """Save or update avatar for profile."""
 
         alt = unavailable_file.format(file_name=avatar_file.name)
         if hasattr(self, "avatar"):
@@ -44,15 +36,8 @@ class Profile(models.Model):
 
     @classmethod
     def get_by_user_id_with_avatar(cls, user_id: int) -> Optional["Profile"]:
-        """Get profile with select related Avatar object.
+        """Get profile with select related Avatar object."""
 
-        Args:
-            user_id(int): User id to fetch Profile
-
-        Returns:
-            Optional[Profile]: User's profile
-
-        """
         profile_with_avatar = (
             cls.objects.filter(user_id=user_id).
             select_related("avatar")
@@ -68,16 +53,8 @@ class Profile(models.Model):
 
 
 def get_avatar_path(instance: "Avatar", filename: str) -> str:
-    """Create avatar image saving path.
+    """Create avatar image saving path."""
 
-    Args:
-        instance (Avatar): Avatar object
-        filename (str): Avatar image filename
-
-    Returns:
-        str: Avatar image saving path
-
-    """
     return "users/user_{user_id}/avatar/{filename}".format(
         user_id=instance.profile.user.id, filename=filename,
     )
@@ -99,12 +76,8 @@ class Avatar(models.Model):
     )
 
     def __str__(self) -> str:
-        """String representation of Avatar object.
+        """String representation of Avatar object."""
 
-        Returns:
-            str: String representation of Avatar object.
-
-        """
         return f"Avatar url: {self.src} of user: {self.profile.user.username}"
 
     def custom_update(self, src: InMemoryUploadedFile, alt: str) -> None:
@@ -113,10 +86,6 @@ class Avatar(models.Model):
         Essential to save exactly avatar instance for saving image in sys.
         Avatar.objects.filter.update is not saving the above.
 
-        Args:
-            src (InMemoryUploadedFile): Avatar image
-            alt (str): text representation in case can not access avatar image
-
         """
         self.src = src
         self.alt = alt
@@ -124,12 +93,7 @@ class Avatar(models.Model):
 
 
 def update_user_password(user: User, new_password: str) -> None:
-    """Update User password.
+    """Update User password."""
 
-    Args:
-        user (User): User object
-        new_password (str): New password
-
-    """
     user.set_password(new_password)
     user.save()

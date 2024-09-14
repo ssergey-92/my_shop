@@ -14,14 +14,8 @@ from common.utils import delete_file_from_sys
 def create_user_profile(
     sender: ModelBase, instance: User, created: bool, **kwargs,
 ) -> None:
-    """Create Profile instance for user when received signal User post_save.
+    """Create Profile instance for user when received signal User post_save."""
 
-    Args:
-        sender (ModelBase): User model
-        instance (User): User instance
-        created (bool): True if instance was created
-
-    """
     if created:
         Profile.objects.create(user=instance, full_name=instance.first_name)
 
@@ -34,10 +28,6 @@ def delete_category_image_from_sys(
 
     Delete image if signal is pre_delete or pre_save in case field "src" is
     updated or instance is deleted.
-
-    Args:
-        sender (ModelBase): Avatar model
-        instance (User): Avatar instance
 
     """
     app_logger.info(f"Caught signal {kwargs.get("signal")} for {instance}")

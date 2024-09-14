@@ -23,12 +23,8 @@ class ProfileForm(forms.ModelForm):
         fields = ["full_name", "unique_email", "unique_phone"]
 
     def clean_avatar_src(self) -> Optional[InMemoryUploadedFile]:
-        """Extra validation for avatar_src field.
+        """Extra validation for avatar_src field."""
 
-        Returns:
-            Optional[InMemoryUploadedFile]: avatar image
-
-        """
         avatar_src = self.cleaned_data.get("avatar_src", None)
         # Require extra check as 'avatar_src' field is optional
         if not avatar_src:
@@ -41,12 +37,8 @@ class ProfileForm(forms.ModelForm):
         raise ValidationError(validation_error)
 
     def clean_full_name(self) -> str:
-        """Extra validation for full_name field.
+        """Extra validation for full_name field."""
 
-        Returns:
-            str: full name
-
-        """
         full_name = self.cleaned_data.get("full_name").strip(" ")
         validation_error = validate_profile_full_name(full_name)
         if not validation_error:
@@ -55,12 +47,7 @@ class ProfileForm(forms.ModelForm):
         raise ValidationError(validation_error)
 
     def clean_unique_phone(self) -> str:
-        """Extra validation for unique_phone field.
-
-        Returns:
-            str: phone number
-
-        """
+        """Extra validation for unique_phone field."""
 
         phone = self.cleaned_data.get("unique_phone").strip(" ")
         validation_error = validate_profile_unique_phone(phone)
@@ -70,15 +57,8 @@ class ProfileForm(forms.ModelForm):
         raise ValidationError(validation_error)
 
     def save(self, commit=True) -> Profile:
-        """Save updated profile.
+        """Save updated profile."""
 
-        Args:
-            commit(Optional[bool]): Commit changes to database. Default=True.
-
-        Returns:
-            Profile: updated profile
-
-        """
         avatar_src = self.cleaned_data.pop("avatar_src", None)
         profile = super(ProfileForm, self).save()
         if avatar_src:

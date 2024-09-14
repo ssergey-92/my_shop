@@ -17,15 +17,8 @@ class InProfileSerializer(serializers.Serializer):
     phone = serializers.CharField(allow_blank=False, required=False)
 
     def validate_fullName(self, value: str) -> str:
-        """Extra validation for fullName field.
+        """Extra validation for fullName field."""
 
-        Args:
-            value (str): Full Name
-
-        Returns:
-            str: Full name
-
-        """
         full_name = value.strip()
         validation_error = validate_profile_full_name(full_name)
         if not validation_error:
@@ -34,15 +27,8 @@ class InProfileSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_phone(self, value: str) -> str:
-        """Extra validation for phone field.
+        """Extra validation for phone field."""
 
-        Args:
-            value (str): Phone number
-
-        Returns:
-            str: Phone numbere
-
-        """
         phone = value.strip()
         validation_error = validate_profile_unique_phone(phone)
         if not validation_error:

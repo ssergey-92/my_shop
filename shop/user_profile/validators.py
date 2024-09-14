@@ -17,15 +17,8 @@ full_name_error = (
 
 
 def validate_profile_full_name(full_name: str) -> Optional[str]:
-    """Check that full_name has correct format for Profile.full_name field.
+    """Check that full_name has correct format for Profile.full_name field."""
 
-    Args:
-        full_name (str): Full name
-
-    Returns
-        Optional[str]: validation error details
-
-    """
     full_name_pattern = "^[a-zA-ZА-Яа-я ]{2,}$"
     if not re_match(full_name_pattern, full_name) or full_name.isspace():
         return full_name_error
@@ -34,15 +27,8 @@ def validate_profile_full_name(full_name: str) -> Optional[str]:
 
 
 def validate_profile_unique_phone(phone: str) -> Optional[str]:
-    """Check that phone has correct format for Profile.unique_phone field.
+    """Check that phone has correct format for Profile.unique_phone field."""
 
-    Args:
-        phone (str):  phone number
-
-    Returns
-        Optional[str]: validation error details
-
-    """
     correct_phone_pattern = r"^\+\d{11}$"
     if not re_match(correct_phone_pattern, phone):
         return invalid_phone_number_error
