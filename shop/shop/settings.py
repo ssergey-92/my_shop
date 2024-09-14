@@ -80,7 +80,9 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 # Database
 if os_getenv("SHOP_DEBUG") == "True":
     db_host = os_getenv("SHOP_DB_DEV_HOST")
+    redis_host = os_getenv("REDIS_HOST")
 else:
+    redis_host = os_getenv("DC_REDIS_SERVICE_NAME")
     db_host = os_getenv("DC_DB_SERVICE_NAME")
 
 DATABASES = {
@@ -100,6 +102,28 @@ DATABASES = {
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Cashing
+if os_getenv("SHOP_DUMMY_CACHE") == "True":
+    print("DUMMY CACHE ENABLED!!!")
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION":
+                f"redis://{os_getenv("REDIS_USERNAME")}:{os_getenv("REDIS_PASSWORD")}"
+                f"@{redis_host}:{os_getenv("REDIS_PORT")}/1",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_TIMEOUT": int(os_getenv("REDIS_TIMEOUT")),
+            "TIMEOUT": int(os_getenv("REDIS_CASH_EXPIRY")),
+            }
+        }
+    }
 
 
 # Password validation

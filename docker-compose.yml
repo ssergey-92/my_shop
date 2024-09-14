@@ -40,6 +40,35 @@ services:
         max-file: ${DOCKER_LOGGER_FILES}
         max-size: ${DOCKER_LOGGER_FILE_SIZE}
 
+  redis:
+    image: redis:7.4.0
+    restart: always
+    stop_signal: SIGKILL
+    env_file:
+      - .env
+    command: >
+      redis-server 
+      --bind ${REDIS_HOST}
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly no 
+      --save ""
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    healthcheck:
+      test: > 
+        CMD redis-cli ping
+      timeout: ${REDIS_TIMEOUT}s
+      interval: 5s
+      retries: 2
+    networks:
+      - my_shop
+#    depends_on:
+#      - shop
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKER_LOGGER_FILES}
+        max-size: ${DOCKER_LOGGER_FILE_SIZE}
 
 networks:
   my_shop:
