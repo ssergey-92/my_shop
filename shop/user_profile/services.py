@@ -22,7 +22,7 @@ from .serializers import (
 from common.custom_logger import app_logger
 from common.validators import validate_image_src
 
-class HandleProfile:
+class ProfileHandler:
     """Class for handling logic for Profile related endpoints"""
 
     _invalid_password_error = {"error": "Invalid user password!"}
