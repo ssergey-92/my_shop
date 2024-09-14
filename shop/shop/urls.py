@@ -7,12 +7,14 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
+# Import django admin panel custom settings to init
 from common import admin as common_admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authorization.urls')),
     path('api/', include('user_profile.urls')),
+    path('api/', include('products.urls')),
     path("", include("frontend.urls")),
 ]
 
