@@ -17,10 +17,10 @@ from .serializers import (
     InProfileSerializer,
     OutProfileSerializer,
 )
-from .validators import validate_avatar_src
+
 from common.custom_logger import app_logger
 from common.utils import delete_file_from_sys
-
+from common.validators import validate_image_src
 
 class HandleProfile:
     """Class for handling logic for Profile related endpoints"""
@@ -75,7 +75,7 @@ class HandleProfile:
             response (Response): Http response object.
 
         """
-        validation_error = validate_avatar_src(request.FILES["avatar"])
+        validation_error = validate_image_src(request.FILES["avatar"])
         if validation_error:
             return Response(validation_error, cls._http_bad_request)
 

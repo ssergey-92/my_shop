@@ -8,12 +8,11 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from .models import Profile
 from .validators import (
-    validate_avatar_src,
     validate_profile_full_name,
     validate_profile_unique_phone,
 )
 from common.utils import delete_file_from_sys
-
+from common.validators import validate_image_src
 
 class ProfileForm(forms.ModelForm):
     """Custom Profile Form for django admin panel."""
@@ -36,7 +35,7 @@ class ProfileForm(forms.ModelForm):
         if not avatar_src:
             return
 
-        validation_error = validate_avatar_src(avatar_src)
+        validation_error = validate_image_src(avatar_src)
         if not validation_error:
             return avatar_src
 
