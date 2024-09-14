@@ -1,0 +1,82 @@
+"""Module with form related to Product"""
+
+from typing import Optional
+
+from django import forms
+from django.core.exceptions import ValidationError
+from rest_framework.fields import ImageField
+
+from common.validators import validate_image_src
+from products.models import Product, ProductImage, ProductReview
+from products.validators import (
+    validate_product_price,
+    validate_product_review_rate,
+    validate_product_sorting_index,
+)
+
+
+class ProductForm(forms.ModelForm):
+    """Class ProductForm. Custom form for django admin panel.
+
+     Class is used for Product (admin.ModelAdmin).
+
+     """
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+    def clean_price(self) -> Optional[str]:
+        """Extra validation for 'price' field."""
+
+        price = self.cleaned_data.get("price")
+        validation_error = validate_product_price(price)
+        if not validation_error:
+            return price
+
+        raise ValidationError(validation_error)
+
+    def clean_sorting_index(self) -> Optional[str]:
+        """Extra validation for 'sorting_index' field."""
+
+        sorting_index = self.cleaned_data.get("sorting_index")
+        if not sorting_index:
+            return None
+
+        validation_error = validate_product_sorting_index(sorting_index)
+        if not validation_error:
+            return sorting_index
+
+        raise ValidationError(validation_error)
+
+
+
+class ProductImageInlineForm(forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = "__all__"
+
+    def clean_src(self) -> ImageField:
+        """Add extra checks for image file of 'src' field."""
+
+        src = self.cleaned_data.get("src")
+        validation_error = validate_image_src(src)
+        if not validation_error:
+            return src
+
+        raise ValidationError(validation_error)
+
+
+class ProductReviewForm(forms.ModelForm):
+    class Meta:
+        model = ProductReview
+        fields = "__all__"
+
+    def clean_rate(self):
+        """Add extra checks for 'rate' field."""
+
+        rate = self.cleaned_data.get("rate")
+        validation_error = validate_product_review_rate(rate)
+        if not validation_error:
+            return rate
+
+        raise ValidationError(validation_error)
