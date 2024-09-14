@@ -45,26 +45,30 @@ class HandleAuthorization:
             response (Response): Http response object.
 
         """
-        if request.user.is_authenticated:
-            return Response(cls._sign_in_error, cls._http_unsuccess)
+        try:
+            if request.user.is_authenticated:
+                return Response(cls._sign_in_error, cls._http_unsuccess)
 
-        data = cls._get_data_from_post_request_query_str(request)
-        if not data:
-            return Response(cls._parsing_error, cls._http_unsuccess)
+            data = cls._get_query_params_from_post_request(request)
+            if not data:
+                return Response(cls._parsing_error, cls._http_unsuccess)
 
-        sign_in_data = SignInSerializer(data=data)
-        if not sign_in_data.is_valid():
-            validation_error = {"error": sign_in_data.errors}
-            return Response(validation_error, cls._http_unsuccess)
+            sign_in_data = SignInSerializer(data=data)
+            if not sign_in_data.is_valid():
+                validation_error = {"error": sign_in_data.errors}
+                return Response(validation_error, cls._http_unsuccess)
 
-        user = authenticate(
-                request, username=data["username"], password=data["password"],
-        )
-        if not user or not user.is_active:
-            return Response(cls._authentication_error, cls._http_unsuccess)
+            user = authenticate(
+                    request, username=data["username"], password=data["password"],
+            )
+            if not user or not user.is_active:
+                return Response(cls._authentication_error, cls._http_unsuccess)
 
-        login(request, user)
-        return Response(cls._successful_sign_in, cls._http_success)
+            login(request, user)
+            return Response(cls._successful_sign_in, cls._http_success)
+        except Exception as exc:
+            app_logger.error(exc)
+            return Response({"error": exc}, cls._http_unsuccess)
 
     @classmethod
     def sign_out(cls, request: Request) -> Response:
@@ -80,11 +84,15 @@ class HandleAuthorization:
             response (Response): Http response object.
 
         """
-        if request.user.is_authenticated:
-            logout(request)
-            return Response(cls._successful_sign_out, cls._http_success)
-        else:
-            return Response(cls._sign_out_error, cls._http_unsuccess)
+        try:
+            if request.user.is_authenticated:
+                logout(request)
+                return Response(cls._successful_sign_out, cls._http_success)
+            else:
+                return Response(cls._sign_out_error, cls._http_unsuccess)
+        except Exception as exc:
+            app_logger.error(exc)
+            return Response({"error": exc}, cls._http_unsuccess)
 
     @classmethod
     def sign_up(cls, request: Request) -> Response:
@@ -101,34 +109,36 @@ class HandleAuthorization:
             response (Response): Http response object.
 
         """
-        if request.user.is_authenticated:
-            return Response(cls._sign_up_error, cls._http_unsuccess)
+        try:
+            if request.user.is_authenticated:
+                return Response(cls._sign_up_error, cls._http_unsuccess)
 
-        data = cls._get_data_from_post_request_query_str(request)
-        if not data:
-            return Response(cls._parsing_error, cls._http_unsuccess)
+            data = cls._get_query_params_from_post_request(request)
+            if not data:
+                return Response(cls._parsing_error, cls._http_unsuccess)
 
-        sign_up_data = SignUpSerializer(data=data)
-        if not sign_up_data.is_valid():
-            validation_error = {"error": sign_up_data.errors}
-            return Response(validation_error, cls._http_unsuccess)
+            sign_up_data = SignUpSerializer(data=data)
+            if not sign_up_data.is_valid():
+                validation_error = {"error": sign_up_data.errors}
+                return Response(validation_error, cls._http_unsuccess)
 
-        sign_up_data.validated_data["first_name"] = (
-            sign_up_data.validated_data.pop("name")
-        )
-        user = create_new_user(sign_up_data.validated_data)
-        if not user:
-            return Response(cls._existed_user_error, cls._http_unsuccess)
+            sign_up_data.validated_data["first_name"] = (
+                sign_up_data.validated_data.pop("name")
+            )
+            user = create_new_user(sign_up_data.validated_data)
+            if not user:
+                return Response(cls._existed_user_error, cls._http_unsuccess)
 
-        login(request, user)
-        app_logger.debug(f"{user=}")
-        return Response(cls._successful_sign_up, cls._http_success)
+            login(request, user)
+            app_logger.debug(f"{user=}")
+            return Response(cls._successful_sign_up, cls._http_success)
+        except Exception as exc:
+            app_logger.error(exc)
+            return Response({"error": exc}, cls._http_unsuccess)
 
     @staticmethod
-    def _get_data_from_post_request_query_str(
-        request: Request,
-    ) -> Optional[dict]:
-        """Get query string data from POST request.
+    def _get_query_params_from_post_request(request: Request) -> Optional[dict]:
+        """Get query string params from POST request.
 
         Args:
             request (Request): Http request object.
