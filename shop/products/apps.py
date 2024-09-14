@@ -1,0 +1,13 @@
+"""App configuration module."""
+
+from django.apps import AppConfig
+
+
+class ProductsConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "products"
+
+    def ready(self) -> None:
+        """Activate signals for app."""
+
+        from . import signals
