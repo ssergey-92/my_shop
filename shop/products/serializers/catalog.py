@@ -24,7 +24,7 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
     )
     freeDelivery = serializers.BooleanField(required=False)
     available = serializers.BooleanField(required=False)
-    category= serializers.IntegerField(required=True)
+    category= serializers.IntegerField(required=False, allow_null=True)
     currentPage = serializers.IntegerField(required=False, default=1)
     limit = serializers.IntegerField(required=False, default=20)
     tags = serializers.ListField(
@@ -35,9 +35,12 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
 
     def validate_category(self, value) -> int:
         """Extra category id validation. Check that category id is existed"""
-
-        if Category.objects.filter(id=value, is_active=True).exists():
+        if (
+                not value or
+                Category.objects.filter(id=value, is_active=True).exists()
+        ):
             return value
+
         raise ValidationError(f"Category id: {id} is not existed")
 
     def validate_sort(self, value) -> str:
@@ -64,7 +67,10 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
 
         app_logger.debug(f"{instance=}")
         return {
-            "category_id": instance["category"],
+            "category_id":(
+                instance.get("category") if instance.get("category") != 0
+                else None
+            ),
             "filters": self._get_filter_items(instance),
             "sort": self._get_sort_item(instance),
             "pagination": {

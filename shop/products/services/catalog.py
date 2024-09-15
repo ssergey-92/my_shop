@@ -1,4 +1,5 @@
 """Handle business logi for catalog related endpoints"""
+from typing import Optional
 
 from django.core.cache import cache
 from django.db.models import QuerySet, Q, Count
@@ -57,7 +58,7 @@ class CatalogHandler:
             }
             response_data = (catalog_data, HTTP_200_OK)
         except ValidationError as exc:
-            response_data = ({"error": exc}, HTTP_400_BAD_REQUEST)
+            response_data = ({"error": str(exc)}, HTTP_400_BAD_REQUEST)
         except Exception as exc:
             app_logger.error(f"{exc.args}")
             response_data = (server_error, HTTP_500_INTERNAL_SERVER_ERROR)
@@ -78,7 +79,7 @@ class CatalogHandler:
             "maxPrice": query_params.get("filter[maxPrice]"),
             "freeDelivery": query_params.get("filter[freeDelivery]"),
             "available": query_params.get("filter[available]"),
-            "category": query_params.get("category"),
+            "category": query_params.get("category", None),
             "currentPage": query_params.get("currentPage"),
             "limit": query_params.get("limit"),
             "sort": query_params.get("sort"),
@@ -95,14 +96,14 @@ class CatalogHandler:
 
     @staticmethod
     def _add_filters_to_qs(
-            query_set: QuerySet, category_id: int, filters: dict,
+            query_set: QuerySet, category_id: Optional[int], filters: dict,
     ) -> QuerySet:
         """Add filters to catalog query set"""
-
-        query_set = query_set.filter(
-            (Q(category_id=category_id) | Q(category__parent_id=category_id)) &
-            Q(is_active=True)
-        )
+        query_set = query_set.filter(Q(is_active=True))
+        if category_id:
+            query_set = query_set.filter(
+                Q(category_id=category_id) | Q(category__parent_id=category_id)
+            )
         if filters:
             query_set = query_set.filter(**filters)
         return query_set
