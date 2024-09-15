@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "authorization.apps.AuthorizationConfig",
     "user_profile.apps.UserProfileConfig",
     "products.apps.ProductsConfig",
+    "orders.apps.OrdersConfig",
 ]
 
 
