@@ -11,9 +11,9 @@ from rest_framework.status import (
 
 from common.custom_logger import app_logger
 from common.utils import server_error
-from products.models import Category
+from products.models import Category, ProductTag
 from products.serializers import ProductTagSerializer
-from .category import category_id_unexist_error, category_id_unset_error
+from .category import category_unexist_error
 
 
 class ProductTagHandler:
@@ -28,24 +28,26 @@ class ProductTagHandler:
 
         """
         try:
-            category_id = request.query_params.get("category")
-            if not category_id:
-                return Response(category_id_unset_error, HTTP_400_BAD_REQUEST)
+            category_id = request.query_params.get("category", None)
+            if category_id:
+                category = (
+                    Category.objects.
+                    prefetch_related("subcategories").
+                    get(id=int(category_id))
+                )
+                if not category:
+                    return Response(category_unexist_error, HTTP_400_BAD_REQUEST)
 
-            category = (
-                Category.objects.
-                prefetch_related("subcategories").
-                get(id=int(category_id))
-            )
-            if not category:
-                return Response(category_id_unexist_error, HTTP_400_BAD_REQUEST)
+                tags = category.get_category_related_tags()
+            else:
+                tags = ProductTag.objects.all()
 
-            category_related_tags = category.get_category_related_tags()
-            if not category_related_tags:
+            if not tags:
                 return Response(status=HTTP_204_NO_CONTENT)
 
-            tags_data = ProductTagSerializer(category_related_tags, many=True)
-            return Response(tags_data.data, HTTP_200_OK)
+            return Response(
+                ProductTagSerializer(tags, many=True).data, HTTP_200_OK,
+            )
         except Exception as exc:
             app_logger.error(exc)
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)

@@ -9,7 +9,7 @@ from products.models import Category
 from products.serializers import OutCategoriesTreeSerializer
 
 category_max_nesting_level = 1
-category_id_unexist_error = {"error": "Category id is not existed!"}
+category_unexist_error = {"error": "Category id is not existed!"}
 category_id_unset_error = {"error": "Category id is not set!"}
 
 
