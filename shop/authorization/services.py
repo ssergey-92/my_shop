@@ -52,12 +52,13 @@ class HandleAuthorization:
                 validation_error = {"error": sign_in_data.errors}
                 return Response(validation_error, cls._http_unsuccess)
 
+
             user = authenticate(
                     request, username=data["username"], password=data["password"],
             )
+
             if not user or not user.is_active:
                 return Response(cls._authentication_error, cls._http_unsuccess)
-
             login(request, user)
             return Response(cls._successful_sign_in, cls._http_success)
         except Exception as exc:
@@ -74,7 +75,10 @@ class HandleAuthorization:
         """
         try:
             if request.user.is_authenticated:
+                user_basket = request.session.get("basket", {})
                 logout(request)
+                request.session["basket"] = user_basket
+                request.session.save()
                 return Response(cls._successful_sign_out, cls._http_success)
             else:
                 return Response(cls._sign_out_error, cls._http_unsuccess)
@@ -110,9 +114,7 @@ class HandleAuthorization:
             user = create_new_user(sign_up_data.validated_data)
             if not user:
                 return Response(cls._existed_user_error, cls._http_unsuccess)
-
             login(request, user)
-            app_logger.debug(f"{user=}")
             return Response(cls._successful_sign_up, cls._http_success)
         except Exception as exc:
             app_logger.error(exc)
