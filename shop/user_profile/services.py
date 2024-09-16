@@ -148,8 +148,13 @@ class ProfileHandler:
 
     @staticmethod
     def _reset_user_session(request: Request, user: User) -> None:
-        """Reset session details for user."""
+        """Reset session details for user.
 
+        Add user bucket to session due to session clearing while user logout.
+        """
+
+        user_basket = request.session.get("basket", {})
         logout(request)
+        request.session["basket"] = user_basket
         login(request, user)
         app_logger.info(f"Session was reset for {user.id=}")
