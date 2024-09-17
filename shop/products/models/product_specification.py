@@ -26,7 +26,7 @@ class ProductSpecification(models.Model):
         )
 
     class Meta:
-        verbose_name = "Product: image"
+        verbose_name = "Product: specification"
         verbose_name_plural = "Products: specifications"
 
     def __str__(self) -> str:
