@@ -1,7 +1,7 @@
 """App db model Product."""
 
 from django.db import models
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 
 from .product_review import ProductReview
 from common.custom_logger import app_logger
@@ -64,7 +64,7 @@ class Product(models.Model):
 
         return (
             cls.objects.
-            filter(is_active=True, is_limited=True).
+            filter(is_active=True, count__gt=0, is_limited=True).
             order_by("rating", "count", "price")
             [:total_products]
         )
@@ -81,7 +81,36 @@ class Product(models.Model):
 
         return (
             cls.objects.
-            filter(is_active=True).
+            filter(is_active=True, count__gt=0).
             order_by("-sorting_index", "price")
             [:total_products]
         )
+    @classmethod
+    def get_unavailable_products(cls, products_ids: list[int]) -> QuerySet:
+        """Get unavailable products.
+
+        Product considered is unavailable if is_active=False or count <= 0.
+
+        """
+        return (
+            Product.objects.
+            filter(
+                (Q(is_active=False) | Q(count__lte=0)) & Q(id__in=products_ids)
+            )
+        )
+
+    @classmethod
+    def select_available_products(
+            cls, products_ids: list[int],
+    ) -> QuerySet:
+        """Select available products for update.
+
+        Product considered is available if is_active=True and count > 0.
+
+        """
+        return (
+            cls.objects.
+            filter(is_active=True, count__gt=0, id__in=products_ids).
+            select_for_update()
+        )
+
