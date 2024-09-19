@@ -22,6 +22,7 @@ class Product(models.Model):
         null=True,
     )
     price = models.DecimalField(max_digits=12, decimal_places=2, null=False)
+    received_amount = models.PositiveIntegerField(null=False)
     count = models.PositiveIntegerField(null=False)
     created_date = models.DateTimeField(auto_now_add=True)
     free_delivery = models.BooleanField(default=False)

@@ -4,6 +4,7 @@ from typing import Optional
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 from rest_framework.fields import ImageField
 
 from common.validators import validate_image_src
@@ -48,6 +49,30 @@ class ProductForm(forms.ModelForm):
 
         raise ValidationError(validation_error)
 
+    def clean(self) -> dict:
+        """Extra validation for 'count' field."""
+
+        cleaned_data = super().clean()
+        count = self.cleaned_data.get("count")
+        received_amount =  self.cleaned_data.get("received_amount")
+        if not "id":
+            return cleaned_data
+
+        if count > received_amount:
+            raise ValidationError(
+                "Remains amount 'count' can not be more that received amount."
+            )
+        sold_amount = (
+            self.instance.orderandproduct_set.
+            aggregate(total_sailed=Sum("total_quantity"))["total_sailed"]
+        )
+        if count > (received_amount - sold_amount):
+            raise ValidationError(
+                "Summ of 'count'(remains) and 'sold' products can not be more "
+                "then received amount!."
+            )
+
+        return cleaned_data
 
 
 class ProductImageInlineForm(forms.ModelForm):

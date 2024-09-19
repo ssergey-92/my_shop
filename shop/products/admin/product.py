@@ -1,7 +1,8 @@
 """Admin models for Product."""
 
 from django.contrib import admin
-from django.db.models import QuerySet
+from django.core.exceptions import ValidationError
+from django.db.models import QuerySet, Sum
 from django.http import HttpRequest
 
 from common.admin import archive_items, restore_items
@@ -19,6 +20,7 @@ from products.models import (
     ProductTag,
     ProductAndTag,
 )
+
 
 
 class ProductImageInline(admin.StackedInline):
@@ -69,7 +71,7 @@ class ProductAdmin(admin.ModelAdmin):
         "created_date",
         "is_active",
     )
-    readonly_fields = ("id", "created_date", "rating")
+    readonly_fields = ("id", "created_date", "rating", "get_sold_products")
     list_display_links = ("id", "title")
     list_filter = ("is_active", "count")
     ordering = ("is_active", "category", "price", "count", "created_date")
@@ -90,7 +92,13 @@ class ProductAdmin(admin.ModelAdmin):
             }
         ),
         ("QUALITY", {"fields": ("rating", "sorting_index", "is_limited")}),
-        ("PRICE AND QUANTITY", {"fields": ("price", "count")}),
+        (
+            "PRICE AND QUANTITY",
+            {"fields": (
+                "price", "received_amount", "get_sold_products", "count",
+                ),
+            },
+        ),
         ("DELIVERY", {"fields": ("free_delivery",)}),
     )
 
@@ -105,6 +113,7 @@ class ProductAdmin(admin.ModelAdmin):
                 "productandtag_set",
                 "productandspecification_set",
                 "reviews",
+                "orders",
             )
         )
 
@@ -118,3 +127,30 @@ class ProductAdmin(admin.ModelAdmin):
 
         obj.is_active = False
         obj.save()
+
+    def save_model(
+            self, request:HttpRequest,
+            obj: Product,
+            form: ProductForm ,
+            change: bool,
+    ):
+        """Add extra logic for saving new instance.
+
+        If new Product is created set remains == received Product quantity.
+
+        """
+        if not obj.id:  # new Product created
+            obj.received_amount = obj.count
+
+        super().save_model(request, obj, form, change)
+
+    def get_sold_products(self, obj: Product) -> int:
+        """Get parent category."""
+
+        return (
+            obj.orderandproduct_set.
+            aggregate(total_sailed=Sum("total_quantity"))
+            ["total_sailed"]
+        )
+
+    get_sold_products.short_description = "Sold products"
