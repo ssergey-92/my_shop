@@ -39,8 +39,6 @@ class BucketProductSerializer(OutSpecialProductSerializer):
     """Serializing db model 'Product' for basket."""
 
     count = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
-
 
     class Meta(OutSpecialProductSerializer.Meta):  # Inherit Meta class
         fields = OutSpecialProductSerializer.Meta.fields
@@ -56,13 +54,3 @@ class BucketProductSerializer(OutSpecialProductSerializer):
             return obj.required_amount
         else:
             return obj.count
-
-
-    def get_price(self, obj: Product) -> float:
-        """Override model 'price' field.
-
-        Set total 'price' instead of product 'price' according to the quantity.
-
-        """
-        count = self.get_count(obj)
-        return float(count * obj.price)
