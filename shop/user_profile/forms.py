@@ -7,11 +7,11 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from .models import Profile
-from .validators import (
-    validate_profile_full_name,
-    validate_profile_unique_phone,
+from common.validators import (
+    validate_image_src,
+    validate_full_name,
+    validate_phone_number,
 )
-from common.validators import validate_image_src
 
 class ProfileForm(forms.ModelForm):
     """Custom Profile Form for django admin panel."""
@@ -40,7 +40,7 @@ class ProfileForm(forms.ModelForm):
         """Extra validation for full_name field."""
 
         full_name = self.cleaned_data.get("full_name").strip(" ")
-        validation_error = validate_profile_full_name(full_name)
+        validation_error = validate_full_name(full_name)
         if not validation_error:
             return full_name
 
@@ -50,7 +50,7 @@ class ProfileForm(forms.ModelForm):
         """Extra validation for unique_phone field."""
 
         phone = self.cleaned_data.get("unique_phone").strip(" ")
-        validation_error = validate_profile_unique_phone(phone)
+        validation_error = validate_phone_number(phone)
         if not validation_error:
             return phone
 
