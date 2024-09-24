@@ -21,7 +21,6 @@ services:
     depends_on:
       - db
 
-
   db:
     image: mysql:9.0.1
     restart: always
@@ -48,7 +47,7 @@ services:
       - .env
     command: >
       redis-server 
-      --bind ${REDIS_HOST}
+      --bind ${REDIS_CONTAINER_HOST}
       --requirepass ${REDIS_PASSWORD}
       --appendonly no 
       --save ""
@@ -62,13 +61,36 @@ services:
       retries: 2
     networks:
       - my_shop
-#    depends_on:
-#      - shop
+    depends_on:
+      - shop
     logging:
       driver: json-file
       options:
         max-file: ${DOCKER_LOGGER_FILES}
         max-size: ${DOCKER_LOGGER_FILE_SIZE}
+
+  celery:
+    build:
+      context: ./shop
+    stop_signal: SIGKILL
+    env_file:
+      - ./.env
+    environment:
+      - CELERY_WORKER=True
+    entrypoint: >
+      celery 
+      -A shop 
+      worker 
+      -l debug
+    networks:
+      - my_shop
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKER_LOGGER_FILES}
+        max-size: ${DOCKER_LOGGER_FILE_SIZE}
+    depends_on:
+      - redis
 
 networks:
   my_shop:

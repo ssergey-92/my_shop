@@ -5,12 +5,6 @@
 set -e
 
 
-# Installing dependencies from poetry
-echo "Installing dependencies from poetry..."
-poetry config virtualenvs.create false --local
-poetry install
-
-
 # Waiting MySQL db container to start and accept connection
 echo "Waiting for MySQL..."
 while ! nc -z db 3306; do

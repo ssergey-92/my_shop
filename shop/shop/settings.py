@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 
 # Database
 if os_getenv("SHOP_DEBUG") == "True":
-    db_host = os_getenv("SHOP_DB_DEV_HOST")
-    redis_host = os_getenv("REDIS_HOST")
+    DB_HOST = os_getenv("SHOP_DB_DEV_HOST")
+    REDIS_HOST = os_getenv("REDIS_DEV_HOST")
 else:
-    redis_host = os_getenv("DC_REDIS_SERVICE_NAME")
-    db_host = os_getenv("DC_DB_SERVICE_NAME")
+    REDIS_HOST = os_getenv("DC_REDIS_SERVICE_NAME")
+    DB_HOST = os_getenv("DC_DB_SERVICE_NAME")
 
 DATABASES = {
     "default": {
@@ -92,7 +92,7 @@ DATABASES = {
         "NAME": os_getenv("MYSQL_DATABASE"),
         "USER": os_getenv("MYSQL_USER"),
         "PASSWORD": os_getenv("MYSQL_PASSWORD"),
-        "HOST": db_host,
+        "HOST": DB_HOST,
         "PORT": os_getenv("MYSQL_PORT"),
         "OPTIONS": {
             "charset":  os_getenv("SHOP_DB_CHARSET"),
@@ -115,9 +115,11 @@ else:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION":
-                f"redis://{os_getenv("REDIS_USERNAME")}:{os_getenv("REDIS_PASSWORD")}"
-                f"@{redis_host}:{os_getenv("REDIS_PORT")}/1",
+            "LOCATION": (
+                f"redis://{os_getenv("REDIS_USERNAME")}:"
+                f"{os_getenv("REDIS_PASSWORD")}@{REDIS_HOST}:"
+                f"{os_getenv("REDIS_PORT")}/{os_getenv("REDIS_CACHES_DB")}"
+            ),
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "CONNECTION_TIMEOUT": int(os_getenv("REDIS_TIMEOUT")),
@@ -125,6 +127,17 @@ else:
             }
         }
     }
+
+
+# Celery configs
+CELERY_BROKER_URL = (
+    f"redis://{os_getenv("REDIS_USERNAME")}:{os_getenv("REDIS_PASSWORD")}"
+    f"@{REDIS_HOST}:{os_getenv("REDIS_PORT")}/{os_getenv("REDIS_BROKER_DB")}"
+)
+CELERY_RESULT_BACKEND = (
+    f"redis://{os_getenv("REDIS_USERNAME")}:{os_getenv("REDIS_PASSWORD")}"
+    f"@{REDIS_HOST}:{os_getenv("REDIS_PORT")}/{os_getenv("REDIS_BROKER_DB")}"
+)
 
 
 # Password validation
