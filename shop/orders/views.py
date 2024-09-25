@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from orders.services import BasketHandler
+from .services import BasketHandler, OrderHandler, PaymentHandler
 
 
 class BasketAPIView(APIView):
@@ -14,7 +14,6 @@ class BasketAPIView(APIView):
         """Get products from user's bucket."""
 
         return BasketHandler.get_basket(request)
-
 
     def post(self, request: Request) -> Response:
         """Add or increase quantity of product in user's bucket."""
@@ -25,3 +24,30 @@ class BasketAPIView(APIView):
         """Delete or reduce quantity of product in user's bucket."""
 
         return BasketHandler.remove_product(request)
+
+class OrderAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request: Request, id: int = None) -> Response:
+        """Get order by id if set else get active user's orders."""
+
+        if id:
+            return OrderHandler.get_order_by_id(id)
+
+        return OrderHandler.get_user_orders(request.user)
+
+    def post(self, request: Request, id: int = None) -> Response:
+        """Confirm order if id is set else create order."""
+
+        if id:
+            return OrderHandler.confirm_order(request, id)
+
+        return OrderHandler.create_init_order(request)
+
+class PaymentAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request: Request, id: int) -> Response:
+        """Pay order by id."""
+
+        return PaymentHandler.pay_order(request, id)

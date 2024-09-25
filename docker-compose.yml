@@ -61,8 +61,8 @@ services:
       retries: 2
     networks:
       - my_shop
-    depends_on:
-      - shop
+#    depends_on:
+#      - shop
     logging:
       driver: json-file
       options:
