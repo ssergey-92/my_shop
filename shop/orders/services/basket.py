@@ -60,7 +60,8 @@ class BasketHandler:
         try:
             cached_response = cache.get(request.session.get("basket"))
             if cached_response:
-                return Response(cached_response)
+                app_logger.debug(f"{cached_response=}")
+                return Response(*cached_response)
 
             user_basket = cls._get_user_basket(request)
             response = (user_basket, HTTP_200_OK)
@@ -156,5 +157,5 @@ class BasketHandler:
                 request.session["basket"][str(i_product.id)]["count"]
             )
             basket_data.append(BucketProductSerializer(i_product).data)
-
+        print(1111111111111, basket_data)
         return basket_data
