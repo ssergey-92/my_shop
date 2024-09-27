@@ -1,5 +1,7 @@
 """Handle business logi for category related endpoints"""
 
+from traceback import print_exception as tb_print_exception
+
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -39,7 +41,7 @@ class CategoryHandler:
                 return Response(categories_tree.data, status.HTTP_200_OK)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(
                 server_error, status.HTTP_500_INTERNAL_SERVER_ERROR,
             )

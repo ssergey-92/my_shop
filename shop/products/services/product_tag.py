@@ -1,5 +1,7 @@
 """Handle business logi for product tags related endpoints"""
 
+from traceback import print_exception as tb_print_exception
+
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -36,7 +38,9 @@ class ProductTagHandler:
                     get(id=int(category_id))
                 )
                 if not category:
-                    return Response(category_unexist_error, HTTP_400_BAD_REQUEST)
+                    return Response(
+                        category_unexist_error, HTTP_400_BAD_REQUEST
+                    )
 
                 tags = category.get_category_related_tags()
             else:
@@ -49,5 +53,5 @@ class ProductTagHandler:
                 ProductTagSerializer(tags, many=True).data, HTTP_200_OK,
             )
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)

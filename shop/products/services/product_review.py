@@ -1,5 +1,7 @@
 """Handle business logi for product review related endpoints"""
 
+from traceback import print_exception as tb_print_exception
+
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -48,5 +50,5 @@ class ProductReviewHandler:
             )
             return Response(product_reviews.data, HTTP_200_OK)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)

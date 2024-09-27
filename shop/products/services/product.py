@@ -1,5 +1,7 @@
 """Handle business logi for products related endpoints"""
 
+from traceback import print_exception as tb_print_exception
+
 from random import sample
 
 from rest_framework.response import Response
@@ -46,7 +48,7 @@ class ProductHandler:
             )
             return Response(popular_products.data, HTTP_200_OK)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -65,7 +67,7 @@ class ProductHandler:
             )
             return Response(limited_products.data, HTTP_200_OK)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -91,7 +93,7 @@ class ProductHandler:
             )
             return Response(banners_products.data, HTTP_200_OK)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -101,10 +103,10 @@ class ProductHandler:
         try:
             product = Product.objects.get(pk=product_id)
             if not product:
-                return Response(product_id_error,HTTP_404_NOT_FOUND,)
+                return Response(product_id_error,HTTP_404_NOT_FOUND)
 
             product_data = OutProductFullSerializer(product)
             return Response(product_data.data,HTTP_200_OK)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
