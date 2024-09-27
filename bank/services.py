@@ -20,9 +20,9 @@ class PaymentHandler:
     _payment_data_error = "Invalid payments details"
     _security_error = "Payment denied due to security reason!"
     _payment_errors = [
-        "There is no enough money on the card!",
+        "Not enough money on the card!",
         "Invalid card details!",
-        "Card is expired",
+        "Card is expired!",
         "Card is blocked!",
     ]
     _successful_payment_msg = "Successfully payment transaction."
