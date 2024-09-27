@@ -73,6 +73,7 @@ class Order(models.Model):
         null=True,
         related_name="orders",
     )
+    payment_comment = models.CharField(max_length=200, null=True, blank=True)
     status = models.ForeignKey(
         to="OrderStatus",
         on_delete=models.SET_NULL,
