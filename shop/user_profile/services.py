@@ -1,8 +1,9 @@
 """Handle business logic for app endpoints"""
 
+from traceback import print_exception as tb_print_exception
+
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -21,12 +22,14 @@ from .serializers import (
 
 from common.custom_logger import app_logger
 from common.validators import validate_image_src
+from common.utils import server_error
+
 
 class ProfileHandler:
     """Class for handling logic for Profile related endpoints"""
 
     _invalid_password_error = {"error": "Invalid user password!"}
-    _profile_error = "User profile is not found!"
+    _profile_error = {"error": "User profile is not found!"}
     _successful_psw_update = {"msg": "Password was successfully changed."}
     _successful_avatar_update = {"msg": "Avatar was successfully changed."}
     _http_bad_request = HTTP_400_BAD_REQUEST
@@ -47,11 +50,12 @@ class ProfileHandler:
                 return Response(
                     OutProfileSerializer(profile).data, cls._http_success,
                 )
-            exc = cls._profile_error
+            error = cls._profile_error
         except Exception as exc:
-            pass
-        app_logger.error(exc)
-        return Response({"error": exc}, cls._http_internal_error)
+            app_logger.error(tb_print_exception(exc))
+            error = server_error
+
+        return Response(error, cls._http_internal_error)
 
 
     @classmethod
@@ -76,8 +80,8 @@ class ProfileHandler:
             profile.set_new_avatar(request.FILES["avatar"])
             return Response(cls._successful_avatar_update, cls._http_success)
         except Exception as exc:
-            app_logger.error(exc)
-            return Response({"error": exc}, cls._http_internal_error)
+            app_logger.error(tb_print_exception(exc))
+            return Response(server_error, cls._http_internal_error)
 
     @classmethod
     def update_own_profile(cls, request: Request) -> Response:
@@ -108,9 +112,10 @@ class ProfileHandler:
                 OutProfileSerializer(profile).data, cls._http_success,
             )
         except IntegrityError as exc:
+            app_logger.error(tb_print_exception(exc))
             return Response({"error": exc.args}, cls._http_bad_request)
         except Exception as exc:
-            app_logger.error(exc)
+            app_logger.error(tb_print_exception(exc))
             return Response({"error": exc}, cls._http_internal_error)
 
     @classmethod
@@ -144,7 +149,7 @@ class ProfileHandler:
             return Response(cls._successful_psw_update, cls._http_success)
         except Exception as exc:
             app_logger.error(exc)
-            return Response({"error": exc}, cls._http_internal_error)
+            return Response(server_error, cls._http_internal_error)
 
     @staticmethod
     def _reset_user_session(request: Request, user: User) -> None:
