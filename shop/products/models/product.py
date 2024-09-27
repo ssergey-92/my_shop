@@ -1,7 +1,7 @@
 """App db model Product."""
 
 from django.db import models
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Sum
 
 from .product_review import ProductReview
 from common.custom_logger import app_logger
@@ -83,7 +83,8 @@ class Product(models.Model):
         return (
             cls.objects.
             filter(is_active=True, count__gt=0).
-            order_by("-sorting_index", "price")
+            annotate(total_sailed=Sum("orderandproduct__total_quantity")).
+            order_by("-sorting_index", "-total_sailed")
             [:total_products]
         )
     @classmethod
