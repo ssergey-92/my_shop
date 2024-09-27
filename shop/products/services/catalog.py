@@ -1,8 +1,9 @@
 """Handle business logi for catalog related endpoints"""
+from traceback import print_exception as tb_print_exception
 from typing import Optional
 
 from django.core.cache import cache
-from django.db.models import QuerySet, Q, Count
+from django.db.models import QuerySet, Q, Count, Sum
 from django.http import QueryDict
 
 from rest_framework.status import (
@@ -60,7 +61,7 @@ class CatalogHandler:
         except ValidationError as exc:
             response_data = ({"error": str(exc)}, HTTP_400_BAD_REQUEST)
         except Exception as exc:
-            app_logger.error(f"{exc.args}")
+            app_logger.error(f"{tb_print_exception(exc)}")
             response_data = (server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
         app_logger.debug(
@@ -112,8 +113,16 @@ class CatalogHandler:
     def _add_sort_to_qs(query_set: QuerySet, sort: str) -> QuerySet:
         """Add order by field to query set and annotate it if required."""
 
-        if sort and sort.endswith("total_reviews"):
+        if not sort:
+            return query_set
+
+        if sort.endswith("total_reviews"):
             query_set = query_set.annotate(total_reviews=Count("reviews__id"))
+        elif sort.endswith("total_sailed"):
+            query_set = query_set.annotate(
+                total_sailed=Sum("orderandproduct__total_quantity")
+            )
+
         query_set = query_set.order_by(sort)
         return query_set
 

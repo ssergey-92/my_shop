@@ -123,6 +123,8 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
             order_by_field = "created_date"
         elif instance["sort"] == "reviews":
             order_by_field = "total_reviews"
+        elif instance["sort"] == "rating":
+            order_by_field = "total_sailed"
         else:
             order_by_field = instance["sort"]
 
