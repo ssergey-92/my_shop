@@ -1,4 +1,4 @@
-"""Start 'My_Shop' application.
+"""Start 'My_Shop' project.
 
 Build and start docker compose. After catching signal KeyboardInterrupt
 stop and remove docker compose containers.
