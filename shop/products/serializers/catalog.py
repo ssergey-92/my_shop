@@ -33,7 +33,7 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
     sort = serializers.CharField(required=False, default="date")
     sortType = serializers.CharField(required=False, default="dec")
 
-    def validate_category(self, value) -> int:
+    def validate_category(self, value: int) -> int:
         """Extra category id validation. Check that category id is existed"""
         if (
                 not value or
@@ -43,7 +43,7 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
 
         raise ValidationError(f"Category id: {id} is not existed")
 
-    def validate_sort(self, value) -> str:
+    def validate_sort(self, value: str) -> str:
         """Extra sort validation. Check that sort value in sort_items."""
 
         if value not in sort_items:
@@ -53,7 +53,7 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
             )
         return value
 
-    def validate_sortType(self, value) -> str:
+    def validate_sortType(self, value: str) -> str:
         """Extra sortType validation. Check that sortType in sort_types."""
 
         if value not in sort_types:
