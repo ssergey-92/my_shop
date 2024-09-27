@@ -1,15 +1,35 @@
 services:
 
+  bank:
+    build:
+      context: ./bank
+    container_name: ${DC_BANK_SERVICE_NAME}
+    stop_signal: SIGKILL
+    env_file:
+      - ./.env
+    ports:
+      - ${BANK_PORT}:${BANK_PORT}
+    networks:
+      - my_shop
+    volumes:
+      - ./bank/logs/:/bank/logs/
+    logging:
+      driver: json-file
+      options:
+        max-file: ${DOCKER_LOGGER_FILES}
+        max-size: ${DOCKER_LOGGER_FILE_SIZE}
+
   shop:
     build:
       context: ./shop
+    container_name: ${DC_SHOP_SERVICE_NAME}
     stop_signal: SIGKILL
     env_file:
       - ./.env
     networks:
       - my_shop
     ports:
-      - "80:80"
+      - ${SHOP_PORT}:${SHOP_PORT}
     logging:
       driver: json-file
       options:
@@ -23,6 +43,7 @@ services:
 
   db:
     image: mysql:9.0.1
+    container_name: ${DC_DB_SERVICE_NAME}
     restart: always
     stop_signal: SIGKILL
     env_file:
@@ -41,6 +62,7 @@ services:
 
   redis:
     image: redis:7.4.0
+    container_name: ${DC_REDIS_SERVICE_NAME}
     restart: always
     stop_signal: SIGKILL
     env_file:
@@ -61,8 +83,6 @@ services:
       retries: 2
     networks:
       - my_shop
-#    depends_on:
-#      - shop
     logging:
       driver: json-file
       options:
@@ -72,6 +92,7 @@ services:
   celery:
     build:
       context: ./shop
+    container_name: ${DC_CELERY_SERVICE_NAME}
     stop_signal: SIGKILL
     env_file:
       - ./.env
@@ -81,7 +102,7 @@ services:
       celery 
       -A shop 
       worker 
-      -l debug
+      -l info
     networks:
       - my_shop
     logging:
