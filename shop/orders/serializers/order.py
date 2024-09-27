@@ -229,10 +229,14 @@ class OutOrderSerializer(serializers.ModelSerializer):
 
         return obj.total_cost
 
-    def get_status(self, obj: Order) -> str:
-        """Get order status name"""
+    def get_status(self, obj: Order) -> Optional[str]:
+        """Get order status name with payment comment if existed."""
+        if obj.status:
+            if obj.payment_comment:
+                return obj.status.name + " (" + obj.payment_comment + ")"
 
-        return obj.status.name if obj.status else None
+            return obj.status.name
+        return None
 
     def get_products(self, obj: Order) -> list:
         """Get ordered product."""
