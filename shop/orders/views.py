@@ -8,7 +8,7 @@ from rest_framework.request import Request
 from .services import BasketHandler, OrderHandler, PaymentHandler
 
 
-class BasketAPIView(APIView):
+class BasketView(APIView):
 
     def get(self, request: Request) -> Response:
         """Get products from user's bucket."""
@@ -25,7 +25,7 @@ class BasketAPIView(APIView):
 
         return BasketHandler.remove_product(request)
 
-class OrderAPIView(APIView):
+class OrderView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request: Request, id: int = None) -> Response:
@@ -44,7 +44,7 @@ class OrderAPIView(APIView):
 
         return OrderHandler.create_init_order(request)
 
-class PaymentAPIView(APIView):
+class PaymentView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request: Request, id: int) -> Response:
