@@ -1,4 +1,5 @@
 from json import JSONDecodeError, loads as json_loads
+from traceback import print_exception as tb_print_exception
 from typing import Optional
 
 from django.contrib.auth import authenticate, login, logout
@@ -9,7 +10,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_500_INTERNAL_SERVER_ERROR
 from .models import create_new_user
 from .serializers import SignInSerializer, SignUpSerializer
 from common.custom_logger import app_logger
-
+from common.utils import server_error
 
 class HandleAuthorization:
     """Class for authorization related endpoints"""
@@ -21,7 +22,7 @@ class HandleAuthorization:
     }
     _sign_out_error = {"error": "Login first before logout!"}
     _sign_in_error = {"error": "Logout first before login!"}
-    _sign_up_error = {"msg": "Logout first to create new account!"}
+    _sign_up_error = {"error": "Logout first to create new account!"}
 
     _successful_sign_in = {"msg": "Successfully logged in!"}
     _successful_sign_out = {"msg": "Successful logout!"}
@@ -62,8 +63,8 @@ class HandleAuthorization:
             login(request, user)
             return Response(cls._successful_sign_in, cls._http_success)
         except Exception as exc:
-            app_logger.error(exc)
-            return Response({"error": exc}, cls._http_unsuccess)
+            app_logger.error(tb_print_exception(exc))
+            return Response(server_error, cls._http_unsuccess)
 
     @classmethod
     def sign_out(cls, request: Request) -> Response:
@@ -83,8 +84,8 @@ class HandleAuthorization:
             else:
                 return Response(cls._sign_out_error, cls._http_unsuccess)
         except Exception as exc:
-            app_logger.error(exc)
-            return Response({"error": exc}, cls._http_unsuccess)
+            app_logger.error(tb_print_exception(exc))
+            return Response(server_error, cls._http_unsuccess)
 
     @classmethod
     def sign_up(cls, request: Request) -> Response:
@@ -117,8 +118,8 @@ class HandleAuthorization:
             login(request, user)
             return Response(cls._successful_sign_up, cls._http_success)
         except Exception as exc:
-            app_logger.error(exc)
-            return Response({"error": exc}, cls._http_unsuccess)
+            app_logger.error(tb_print_exception(exc))
+            return Response(server_error, cls._http_unsuccess)
 
     @staticmethod
     def _get_query_params_from_post_request(request: Request) -> Optional[dict]:
@@ -129,4 +130,4 @@ class HandleAuthorization:
             app_logger.debug(f"{parsed_data=}")
             return parsed_data
         except (TypeError, JSONDecodeError) as exc:
-            app_logger.error(f"{exc}")
+            app_logger.error(tb_print_exception(exc))
