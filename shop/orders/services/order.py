@@ -181,7 +181,9 @@ class OrderHandler:
         init_order.delivery_cost = DeliveryService.count_cost(
             init_order.products_cost, init_order.delivery_type
         )
-        init_order.total_cost += init_order.delivery_cost
+        init_order.total_cost = (
+                init_order.delivery_cost + init_order.products_cost
+        )
         init_order.save()
 
     @staticmethod

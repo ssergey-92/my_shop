@@ -1,3 +1,5 @@
+import json
+
 from cryptography.fernet import Fernet
 from json import dumps as json_dumps
 from os import getenv as os_getenv
@@ -21,39 +23,41 @@ redis_client = StrictRedis(
     db=os_getenv("REDIS_BROKER_DB"),
 )
 
+bank_url = "http://{host}:{port}/users/payment".format(
+    host=os_getenv("DC_BANK_SERVICE_NAME"), port=os_getenv("BANK_PORT")
+)
+fernet = Fernet(bytes(os_getenv("PAYMENT_KEY"), os_getenv("ENCODING")))
 
 @shared_task(ignore_result=True)
-def conduct_order_payment(order_id: int, card_details: dict) -> None:
+def conduct_order_payment(order_id: int, payment_details: dict) -> None:
     """Conduct payment for order.
 
     Encrypt card details and sent payment request to bank. Decrypt response
     data and publish payment details in redis.
 
     """
-    celery_logger.info(f"{order_id=}, {card_details=}")
+    celery_logger.info(f"{order_id=}, {payment_details=}")
     order_status = ORDER_STATUSES["payment_rejected"]
     details = {}
     try:
-        # fernet = Fernet(bytes(os_getenv("PAYMENT_KEY"), os_getenv("ENCODING")))
-        # data = fernet.encrypt(
-        #     json_dumps(card_details).encode(os_getenv("ENCODING")),
-        # )
-        # response = post(os_getenv("BANK_URL"), data=data, timeout=7)
-        # if response.status_code == 200:
-        #     order_status = ORDER_STATUSES["payed"]
-        #
-        # response_data = fernet.decrypt(response.text)
-        # details = {"msg": response_data}
-
-        details = {"msg": "TODO"}
+        data = json_dumps(payment_details).encode(os_getenv("ENCODING"))
+        encrypted_data = fernet.encrypt(data)
+        response = post(url=bank_url, data=encrypted_data, timeout=7)
+        if response.status_code == 200:
+            order_status = ORDER_STATUSES["payed"]
+        decrypted_data = fernet.decrypt(response.text)
+        details = json.loads(decrypted_data)
     except Timeout:
         details = {"msg": f"Bank is not responding!"}
     except Exception as exc:
         celery_logger.error(f"{print_exception(exc)}")
         details = {"msg": "Internal Server Error"}
     finally:
-        celery_logger.info(f"{order_id=}, {order_status=}, {details=}")
         msg = json_dumps(
-            {"order_id": order_id, "order_status": order_status, "details": details}
+            {
+                "order_id": order_id,
+                "order_status": order_status,
+                "details": details
+            }
         )
         redis_client.publish(channel=ORDER_PAYMENT_CHANNEL, message=msg)

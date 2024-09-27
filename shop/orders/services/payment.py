@@ -33,10 +33,16 @@ class PaymentHandler:
             if not card_details.is_valid():
                 raise ValidationError(card_details.errors)
 
-            cls._update_order_satus(order_id, cls._payment_in_progress_status)
-            conduct_order_payment.delay(
-                order_id=order_id, card_details=card_details.data,
+            payment_details = card_details.data
+            payment_details["charge_price"] = float(
+                Order.objects.filter(id=order_id)
+                .values_list("total_cost", flat=True)
+                [0]
             )
+            conduct_order_payment.delay(
+                order_id=order_id, payment_details=payment_details,
+            )
+            cls._update_order_satus(order_id, cls._payment_in_progress_status)
             return Response({"msg": "Processing payment"}, HTTP_200_OK)
         except ValidationError as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
@@ -45,7 +51,7 @@ class PaymentHandler:
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
-    def update_order_status(cls, payment_result: dict, ):
+    def update_order_payment_details(cls, payment_result: dict):
         try:
             if payment_result['order_status'] == "payed":
                 order_status = cls._payed_status
