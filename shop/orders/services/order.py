@@ -71,7 +71,10 @@ class OrderHandler:
         """Handle logic to get user's active orders."""
 
         try:
-            orders = Order.get_user_orders_with_prefetch(user)
+            orders = (
+                Order.get_user_orders_with_prefetch(user).
+                order_by("-created_at")
+            )
             if not orders:
                 orders_data = {"msg": "There is no active orders!"}
             else:
