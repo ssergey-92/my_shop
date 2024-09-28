@@ -15,6 +15,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from .common import apply_pagination_to_qs, get_pagination_last_page
 from common.custom_logger import app_logger
 from common.utils import server_error
 from products.models import Product, Category
@@ -126,17 +127,6 @@ class CatalogHandler:
         query_set = query_set.order_by(sort)
         return query_set
 
-    @staticmethod
-    def _apply_pagination_to_qs(
-            query_set: QuerySet, pagination: dict
-    ) -> QuerySet:
-        """Add offset and limit to query set as per pagination data."""
-
-        offset = (pagination["current_page"] - 1) * pagination["limit"]
-        last_item = offset + pagination["limit"]
-        query_set = query_set[offset:last_item]
-        return query_set
-
     @classmethod
     def _get_products_data(cls, query_params: dict) -> dict:
         """Get Products data as per validated request query params."""
@@ -147,8 +137,10 @@ class CatalogHandler:
             query_params["filters"],
         )
         catalog_qs = cls._add_sort_to_qs(catalog_qs, query_params["sort"])
-        catalog_qs = cls._apply_pagination_to_qs(
-            catalog_qs, query_params["pagination"],
+        catalog_qs = apply_pagination_to_qs(
+            catalog_qs,
+            query_params["pagination"]["current_page"],
+            query_params["pagination"]["limit"],
         )
         app_logger.debug(f"{catalog_qs=}")
         catalog_data = OutSpecialProductSerializer(catalog_qs, many=True)
@@ -168,10 +160,6 @@ class CatalogHandler:
             query_params["category_id"],
             query_params["filters"],
         )
-        catalog_qs = catalog_qs.aggregate(total_entries=Count("id"))
-        last_page = (
-                catalog_qs["total_entries"] //
-                query_params["pagination"]["limit"] +
-                1
+        return get_pagination_last_page(
+            catalog_qs.count(), query_params["pagination"]["limit"],
         )
-        return last_page
