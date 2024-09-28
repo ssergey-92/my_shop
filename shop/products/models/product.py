@@ -1,4 +1,5 @@
 """App db model Product."""
+from datetime import date
 
 from django.db import models
 from django.db.models import QuerySet, Q, Sum
@@ -22,6 +23,11 @@ class Product(models.Model):
         null=True,
     )
     price = models.DecimalField(max_digits=12, decimal_places=2, null=False)
+    sales_price = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True,
+    )
+    sales_from = models.DateField(null=True)
+    sales_to = models.DateField(null=True)
     received_amount = models.PositiveIntegerField(null=False)
     count = models.PositiveIntegerField(null=False)
     created_date = models.DateTimeField(auto_now_add=True)
@@ -35,11 +41,12 @@ class Product(models.Model):
     rating = models.DecimalField(
         max_digits=2, decimal_places=1, null=True, blank=True,
     )
-    is_active = models.BooleanField(default=True, db_index=True)
     sorting_index = models.PositiveSmallIntegerField(
         default=0, null=True, blank=True, db_index=True,
     )
+    is_active = models.BooleanField(default=True, db_index=True)
     is_limited = models.BooleanField(default=False, db_index=True, null=False)
+    is_sales = models.BooleanField(default=False, db_index=True, null=False)
 
     class Meta:
         verbose_name = "Product: full details"
@@ -65,6 +72,8 @@ class Product(models.Model):
 
         return (
             cls.objects.
+            select_related("category").
+            prefetch_related("images", "reviews", "tags").
             filter(is_active=True, count__gt=0, is_limited=True).
             order_by("rating", "count", "price")
             [:total_products]
@@ -74,7 +83,12 @@ class Product(models.Model):
     def get_banners_products(cls, products_ids: list[int]) -> QuerySet:
         """Get banners products."""
 
-        return cls.objects.filter(id__in=products_ids)
+        return (
+            cls.objects.
+            select_related("category").
+            prefetch_related("images", "reviews", "tags").
+            filter(id__in=products_ids)
+        )
 
     @classmethod
     def get_popular_products(cls, total_products: int) -> QuerySet:
@@ -82,11 +96,32 @@ class Product(models.Model):
 
         return (
             cls.objects.
+            select_related("category").
+            prefetch_related("images", "reviews", "tags").
             filter(is_active=True, count__gt=0).
             annotate(total_sailed=Sum("orderandproduct__total_quantity")).
             order_by("-sorting_index", "-total_sailed")
             [:total_products]
         )
+
+    @classmethod
+    def get_sales_products(cls) -> QuerySet:
+        """Get sales products."""
+
+        today_date = date.today()
+        return (
+            cls.objects.
+            prefetch_related("images").
+            filter(
+                Q(is_active=True) &
+                Q(count__gte=1) &
+                Q(is_sales=True) &
+                (Q(sales_from__isnull=True) | Q(sales_from__lte=today_date)) &
+                (Q(sales_to__isnull=True) | Q(sales_to__gte=today_date))
+            ).
+            order_by("id")
+        )
+
     @classmethod
     def get_unavailable_products(cls, products_ids: list[int]) -> QuerySet:
         """Get unavailable products.
@@ -116,3 +151,11 @@ class Product(models.Model):
             select_for_update()
         )
 
+    @classmethod
+    def get_by_id_with_prefetch(cls, id: int) -> QuerySet:
+        return (
+            cls.objects.
+            select_related("category").
+            prefetch_related("images", "reviews", "tags", "specifications").
+            get(id=id)
+        )
