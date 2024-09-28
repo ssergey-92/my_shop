@@ -74,8 +74,9 @@ class ProductReviewView(APIView):
 class ProductSalesView(APIView):
 
     def get(self, request: Request) -> Response:
-        print(request)
-        return Response({}, 404)
+        """Get 'sales' Products."""
+
+        return ProductHandler.get_sales_products(request.query_params.dict())
 
 
 class TagView(APIView):

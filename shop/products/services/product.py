@@ -4,19 +4,23 @@ from traceback import print_exception as tb_print_exception
 
 from random import sample
 
+from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_204_NO_CONTENT,
     HTTP_404_NOT_FOUND,
-    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST,
 )
 
+from .common import apply_pagination_to_qs, get_pagination_last_page
 from common.custom_logger import app_logger
 from common.utils import server_error
-
+from products.constants import SALES_PRODUCT_PAGINATION_LIMIT
 from products.models import Product
 from products.serializers import (
+    InSalesProductSerializer,
+    OutSalesProductSerializer,
     OutSpecialProductSerializer,
     OutProductFullSerializer,
 )
@@ -97,16 +101,59 @@ class ProductHandler:
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
+    def get_sales_products(query_params: dict) -> Response:
+        try:
+            response_data = cache.get(query_params)
+            app_logger.debug(f"GET CACHE {query_params=} {response_data=}")
+            if response_data:
+                return Response(*response_data)
+
+            query_data = InSalesProductSerializer(data=query_params)
+            if not query_data.is_valid():
+                return Response(
+                    {"error": str(query_data.errors)}, HTTP_400_BAD_REQUEST
+                )
+            sales_products_qs = Product.get_sales_products()
+            total_products = sales_products_qs.count()
+            last_page = get_pagination_last_page(
+                total_products, SALES_PRODUCT_PAGINATION_LIMIT
+            )
+            paginated_sales_products_qs = apply_pagination_to_qs(
+                sales_products_qs,
+                query_data.data["current_page"],
+                SALES_PRODUCT_PAGINATION_LIMIT,
+            )
+            sales_products_data = OutSalesProductSerializer(
+                paginated_sales_products_qs, many=True
+            )
+
+            response_data = {
+                "items": sales_products_data.data,
+                "currentPage": query_data.data["current_page"],
+                "lastPage": last_page
+            }
+
+            response_data = (response_data, HTTP_200_OK)
+
+        except Exception as exc:
+            app_logger.error(tb_print_exception(exc))
+            return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            app_logger.debug(f"SET CACHE {query_params=}: {response_data=}")
+            cache.set(query_params, response_data, 5)
+            return Response(*response_data)
+
+    @staticmethod
     def get_product_by_id(product_id: int) -> Response:
         """Get product by id."""
 
         try:
-            product = Product.objects.get(pk=product_id)
-            if not product:
-                return Response(product_id_error,HTTP_404_NOT_FOUND)
-
+            product = Product.get_by_id_with_prefetch(product_id)
             product_data = OutProductFullSerializer(product)
             return Response(product_data.data,HTTP_200_OK)
+        except Product.DoesNotExist:
+            app_logger.info(f"Product with id {product_id} does not exist!")
+            return Response(product_id_error, HTTP_404_NOT_FOUND)
         except Exception as exc:
             app_logger.error(tb_print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
