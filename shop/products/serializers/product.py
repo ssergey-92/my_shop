@@ -38,29 +38,46 @@ class CommonProductSerializer(serializers.ModelSerializer):
         )
 
     def get_category(self, obj: Product) -> int:
+        """Get Product category id."""
+
         return obj.category.id if obj.category else None
 
     def get_price(self, obj: Product) -> float:
+        """Get Product price.
+
+        If Product sales flag is activated, sales price is set, today date is
+        between sales dates if set then use sales price else ordinary price.
+        """
+
         today_date = date.today()
         if (
                 obj.is_sales and
                 obj.sales_price and
-                (obj.sales_from <= today_date <= obj.sales_to)
+                (obj.sales_from is None or obj.sales_from <= today_date) and
+                (obj.sales_to is None or today_date <= obj.sales_to)
         ):
             return float(obj.sales_price)
 
         return float(obj.price)
 
     def get_date(self, obj: Product) -> datetime:
+        """Get Product created date."""
+
         return obj.created_date
 
     def get_description(self, obj: Product) -> str:
+        """Get Product short description."""
+
         return obj.shot_description
 
     def get_freeDelivery(self, obj: Product) -> bool:
+        """Get Product free delivery flag."""
+
         return obj.free_delivery
 
     def get_images(self, obj: Product) -> list:
+        """Get Product images if set."""
+
         images = obj.images.all()
         if not images.exists():
             return [{"alt": ""}]
@@ -98,6 +115,8 @@ class OutProductFullSerializer(CommonProductSerializer):
         )
 
     def get_fullDescription(self, obj: Product) -> str:
+        """Get Product full description if set else short description."""
+
         return obj.full_description or obj.shot_description
 
 
@@ -109,6 +128,8 @@ class InSalesProductSerializer(serializers.Serializer):
     )
 
     def to_representation(self, instance: dict) -> dict:
+        """Sort and arrange validated data in required format."""
+
         return {"current_page": instance["currentPage"]}
 
 
@@ -133,16 +154,24 @@ class OutSalesProductSerializer(serializers.ModelSerializer):
         )
 
     def get_salePrice(self, obj: Product) -> float:
+        """Get product sales price if set else price."""
+
         price = obj.sales_price or obj.price
         return float(price)
 
     def get_dateFrom(self, obj: Product) -> Optional[str]:
+        """Get Product sales commence date."""
+
         return obj.sales_from.strftime("%m-%d") if obj.sales_from else None
 
     def get_dateTo(self, obj: Product) -> Optional[date]:
+        """Get Product sales completion date."""
+
         return obj.sales_to.strftime("%m-%d") if obj.sales_to else None
 
     def get_images(self, obj: Product) -> list[dict]:
+        """Get Product images if set."""
+
         images = obj.images.all()
         if not images.exists():
             return [{"alt": ""}]

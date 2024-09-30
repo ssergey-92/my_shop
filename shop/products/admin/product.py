@@ -1,7 +1,6 @@
 """Admin models for Product."""
 
 from django.contrib import admin
-from django.core.exceptions import ValidationError
 from django.db.models import QuerySet, Sum
 from django.http import HttpRequest
 
@@ -20,7 +19,6 @@ from products.models import (
     ProductTag,
     ProductAndTag,
 )
-
 
 
 class ProductImageInline(admin.StackedInline):

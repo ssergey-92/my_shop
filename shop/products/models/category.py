@@ -9,6 +9,7 @@ from .product_tag import ProductTag
 from common.custom_logger import app_logger
 
 unavailable_image = "Image is currently unavailable!"
+
 sql_get_active_root_category = """
     WITH RECURSIVE RootCategory AS (
     SELECT id, parent_id, is_active
@@ -130,15 +131,29 @@ class Category(models.Model):
             root_category_id = cursor.fetchone()
         return root_category_id[0] if root_category_id else None
 
-    def get_category_related_tags(self) -> QuerySet:
+    @classmethod
+    def get_category_related_tags(cls, category_id: int) -> QuerySet:
         """Get tags related to category and its subcategories."""
 
-        related_categories_ids = [self.id]
-        if self.subcategories:
-            for i_category in self.subcategories.filter(is_active=True).all():
-                related_categories_ids.append(i_category.id)
+        related_categories_ids = [category_id]
+        related_categories_ids.extend(
+            cls.objects.filter(
+                id=category_id, is_active=True, subcategories__is_active=True,
+            ).values_list("subcategories__id", flat=True)
+        )
         return (
             ProductTag.objects.
             filter(products__category_id__in=related_categories_ids).
             distinct()
+        )
+
+    @classmethod
+    def get_root_categories_with_prefetch(cls) -> QuerySet:
+        """Get active root categories with prefetch subcategories."""
+
+        return (
+            cls.objects.filter(is_active=True, parent__isnull=True).
+            select_related("image").
+            prefetch_related("subcategories").
+            order_by("title")
         )

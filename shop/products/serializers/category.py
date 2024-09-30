@@ -1,11 +1,33 @@
 """Serializers with related model Category."""
 
-from typing import Union
+from typing import Union, Optional
 
 from rest_framework import serializers
 
 from .category_image import CategoryImageSerializer
 from products.models import Category
+
+
+class InCategoryIdSerializer(serializers.Serializer):
+    """Class is used for validation Category id."""
+
+    category = serializers.IntegerField(required=False, allow_null=True)
+
+    def validate_category(self, value: int) -> int:
+        """Extra validation of category id which check that id is existed."""
+
+        if Category.objects.filter(id=value, is_active=True).exists():
+            return value
+
+        raise serializers.ValidationError(
+            f"Category with id {value} is not existed!"
+        )
+
+    def to_representation(self, instance: dict) -> Optional[dict]:
+        """Sort and arrange validated data in required format."""
+
+        if instance.get("category", None):
+            return {"id": instance["category"]}
 
 
 class OutSubcategorySerializer(serializers.ModelSerializer):

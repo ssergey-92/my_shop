@@ -1,4 +1,5 @@
 """App db model Product."""
+
 from datetime import date
 
 from django.db import models
@@ -153,9 +154,21 @@ class Product(models.Model):
 
     @classmethod
     def get_by_id_with_prefetch(cls, id: int) -> QuerySet:
+        """Get active Product object with prefetch related data."""
+
         return (
             cls.objects.
             select_related("category").
             prefetch_related("images", "reviews", "tags", "specifications").
-            get(id=id)
+            get(id=id, is_active=True)
         )
+
+    @classmethod
+    def get_products_ids(cls) -> list:
+        """Get all active and available Products ids."""
+
+        return list(
+                Product.objects.
+                filter(is_active=True, count__gt=0).
+                values_list("id", flat=True)
+            )

@@ -20,14 +20,14 @@ class CatalogView(APIView):
     def get(self, request: Request) -> Response:
         """Get Category and subcategories products as per query params."""
 
-        return CatalogHandler.get_catalog(request)
+        return CatalogHandler.get_catalog_response(request.query_params)
 
 
 class CategoryView(APIView):
     def get(self, request: Request) -> Response:
         """Get all Categories with subcategories."""
 
-        return CategoryHandler.get_categories()
+        return CategoryHandler.get_categories_response()
 
 
 class ProductView(APIView):
@@ -35,7 +35,7 @@ class ProductView(APIView):
     def get(self, request: Request, id: int) -> Response:
         """Get Product details as per Product.id. """
 
-        return ProductHandler.get_product_by_id(id)
+        return ProductHandler.get_product_by_id_response(id)
 
 
 class ProductBannerView(APIView):
@@ -43,7 +43,7 @@ class ProductBannerView(APIView):
     def get(self, request: Request) -> Response:
         """Get 'banners' Products."""
 
-        return ProductHandler.get_banners_products()
+        return ProductHandler.get_banners_products_response()
 
 
 class ProductPopularView(APIView):
@@ -51,7 +51,7 @@ class ProductPopularView(APIView):
     def get(self, request: Request) -> Response:
         """Get 'popular' Products."""
 
-        return ProductHandler.get_popular_products()
+        return ProductHandler.get_popular_products_response()
 
 
 class ProductLimitedView(APIView):
@@ -59,7 +59,7 @@ class ProductLimitedView(APIView):
     def get(self, request: Request) -> Response:
         """Get 'limited' Products."""
 
-        return ProductHandler.get_limited_products()
+        return ProductHandler.get_limited_products_response()
 
 
 class ProductReviewView(APIView):
@@ -68,7 +68,7 @@ class ProductReviewView(APIView):
     def post(self, request: Request, id: int) -> Response:
         """Add new Product Review to Product."""
 
-        return ProductReviewHandler.add_review(id, request)
+        return ProductReviewHandler.add_review_response(id, request)
 
 
 class ProductSalesView(APIView):
@@ -76,7 +76,9 @@ class ProductSalesView(APIView):
     def get(self, request: Request) -> Response:
         """Get 'sales' Products."""
 
-        return ProductHandler.get_sales_products(request.query_params.dict())
+        return ProductHandler.get_sales_products_response(
+            request.query_params.dict()
+        )
 
 
 class TagView(APIView):
@@ -84,4 +86,6 @@ class TagView(APIView):
     def get(self, request: Request) -> Response:
         """Get product tags as per category id."""
 
-        return ProductTagHandler.get_tags_for_category(request)
+        return ProductTagHandler.get_tags_for_category_response(
+            request.query_params.dict(),
+        )

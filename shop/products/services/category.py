@@ -2,6 +2,7 @@
 
 from traceback import print_exception as tb_print_exception
 
+from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -18,8 +19,10 @@ category_id_unset_error = {"error": "Category id is not set!"}
 class CategoryHandler:
     """Class for handling business logic of category related endpoints."""
 
-    @staticmethod
-    def get_categories() -> Response:
+    _category_tree_cache_key = "Category tree"
+
+    @classmethod
+    def get_categories_response(cls) -> Response:
         """Get all categories.
 
         Create categories tree with subcategories. Include only active
@@ -27,21 +30,26 @@ class CategoryHandler:
 
         """
         try:
-            categories_qs = (
-                Category.objects.
-                filter(is_active=True, parent__isnull=True).
-                select_related("image").
-                prefetch_related("subcategories").
-                order_by("title")
+            response_data = cache.get(cls._category_tree_cache_key)
+            app_logger.debug(
+                f"GET CACHE {cls._category_tree_cache_key=} {response_data=}"
             )
-            if categories_qs:
-                categories_tree = OutCategoriesTreeSerializer(
-                    categories_qs, many=True,
-                )
-                return Response(categories_tree.data, status.HTTP_200_OK)
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if response_data:
+                return Response(*response_data)
+
+            categories_qs = Category.get_root_categories_with_prefetch()
+            categories_tree_data = OutCategoriesTreeSerializer(
+                categories_qs, many=True,
+            ).data
+            response_data = (categories_tree_data, status.HTTP_200_OK)
         except Exception as exc:
             app_logger.error(tb_print_exception(exc))
             return Response(
                 server_error, status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        else:
+            app_logger.debug(
+                f"SET CACHE {cls._category_tree_cache_key=}: {response_data=}"
+            )
+            cache.set(cls._category_tree_cache_key, response_data, 60)
+            return Response(*response_data)

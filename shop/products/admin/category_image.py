@@ -33,7 +33,7 @@ class CategoryImageAdmin(admin.ModelAdmin):
     )
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        """Override method. Get query set with select/prefetch related objects."""
+        """Override method get query set with prefetch related objects."""
 
         return CategoryImage.objects.prefetch_related("categories")
 

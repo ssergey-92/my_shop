@@ -1,4 +1,5 @@
 """Handle business logi for catalog related endpoints"""
+
 from traceback import print_exception as tb_print_exception
 from typing import Optional
 
@@ -28,15 +29,21 @@ from products.serializers import (
 class CatalogHandler:
     """Class for handling business logic of catalog related endpoints."""
 
-    _base_query_set = Product.objects.distinct()
+    _base_query_set = (
+            Product.objects.select_related("category").
+            prefetch_related("images", "reviews", "tags").
+            distinct()
+    )
 
     @classmethod
-    def get_catalog(cls, request: Request) -> Response:
-        """Handle logic for getting products as per request query params.
+    def get_catalog_response(
+            cls, search_details: QueryDict
+    ) -> Response:
+        """Handle logic to get Products as per catalog search details.
 
-        If request.query_params is cached as key then use cached response.
+        If search_details is cached then return cached response.
         Else:
-            - Validate query params.
+            - Validate search details.
             - Select Products as per Category id and its subcategories.
               Filter and sort products as per query params and filter
               is_active=True for Product and Category and apply pagination.
@@ -44,19 +51,20 @@ class CatalogHandler:
 
         """
         try:
-            response_data = cache.get(request.query_params.dict())
-            app_logger.debug(
-                f"GET CACHE {request.query_params.dict()=} {response_data=}"
-            )
+            response_data = cache.get(str(search_details))
+            app_logger.debug(f"GET CACHE {search_details=} {response_data=}")
             if response_data:
                 return Response(*response_data)
 
-            query_params = cls._get_query_params(request.query_params)
-            products_data = cls._get_products_data(query_params)
+            validated_search_details = cls._get_validated_search_details(
+                search_details,
+            )
             catalog_data = {
-                "items": products_data,
-                "currentPage": query_params["pagination"]["current_page"],
-                "lastPage": cls._get_catalog_last_page(query_params),
+                "items": cls._get_products_data(validated_search_details),
+                "currentPage":
+                    validated_search_details["pagination"]["current_page"],
+                "lastPage":
+                    cls._get_catalog_last_page(validated_search_details),
             }
             response_data = (catalog_data, HTTP_200_OK)
         except ValidationError as exc:
@@ -65,14 +73,12 @@ class CatalogHandler:
             app_logger.error(f"{tb_print_exception(exc)}")
             response_data = (server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
-        app_logger.debug(
-            f"SET CACHE {request.query_params.dict()}: {response_data=}"
-        )
-        cache.set(request.query_params.dict(), response_data, 60)
+        app_logger.debug(f"SET CACHE {search_details=}: {response_data=}")
+        cache.set(str(search_details), response_data, 60)
         return Response(*response_data)
 
     @staticmethod
-    def _get_query_params(query_params: QueryDict) -> dict:
+    def _get_validated_search_details(query_params: QueryDict) -> dict:
         """Validate and sort request query params."""
 
         query_params = CatalogQueryParamsSerializer(data={
@@ -89,11 +95,7 @@ class CatalogHandler:
             "tags": query_params.getlist("tags[]"),
             },
         )
-        if not query_params.is_valid():
-            app_logger.debug(f"{query_params.errors=}")
-            raise ValidationError(query_params.errors)
-
-        app_logger.debug(f"{query_params.data=}")
+        query_params.is_valid(raise_exception=True)
         return query_params.data
 
     @staticmethod

@@ -1,7 +1,7 @@
 """App serializers for django rest framework."""
 
 from .catalog import CatalogQueryParamsSerializer
-from .category import OutCategoriesTreeSerializer
+from .category import OutCategoriesTreeSerializer, InCategoryIdSerializer
 from .product import (
     InSalesProductSerializer,
     OutSalesProductSerializer,

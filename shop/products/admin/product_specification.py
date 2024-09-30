@@ -7,7 +7,11 @@ from django.db.models import QuerySet
 from django.db.models.fields.files import FileField
 from django.http import HttpRequest
 
-from products.models import Product, ProductSpecification, ProductAndSpecification
+from products.models import (
+    Product,
+    ProductSpecification,
+    ProductAndSpecification,
+)
 
 
 class ProductInline(admin.StackedInline):
