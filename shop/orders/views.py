@@ -40,9 +40,11 @@ class OrderView(APIView):
         """Confirm order if id is set else create order."""
 
         if id:
-            return OrderHandler.confirm_order(request, id)
+            return OrderHandler.confirm_order(request.data, id)
 
-        return OrderHandler.create_init_order(request)
+        return OrderHandler.create_init_order(
+            request.data, request.user, request.session,
+        )
 
 class PaymentView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -50,4 +52,4 @@ class PaymentView(APIView):
     def post(self, request: Request, id: int) -> Response:
         """Pay order by id."""
 
-        return PaymentHandler.pay_order(request, id)
+        return PaymentHandler.pay_order(request.data, id)

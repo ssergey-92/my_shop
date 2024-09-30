@@ -34,13 +34,10 @@ class BasketHandler:
         try:
             cache.delete(request.session.get("basket"))
             product = BasketAddItemSerializer(data=request.data)
-            if not product.is_valid():
-                response = ({"error": product.errors}, HTTP_400_BAD_REQUEST)
-            else:
-                cls._add_product_to_user(product.data, request)
-                user_basket = cls._get_user_basket(request)
-                response = (user_basket, HTTP_200_OK)
-
+            product.is_valid(raise_exception=True)
+            cls._add_product_to_user(product.data, request)
+            user_basket = cls._get_user_basket(request)
+            response = (user_basket, HTTP_200_OK)
             cache.set(request.session["basket"], response, 360)
             return Response(*response)
         except ValidationError as exc:
@@ -86,13 +83,10 @@ class BasketHandler:
         try:
             cache.delete(request.session.get("basket"))
             product = BasketAddItemSerializer(data=request.data)
-            if not product.is_valid():
-                response = ({"error": product.errors}, HTTP_400_BAD_REQUEST)
-            else:
-                cls._remove_product_from_user(product.data, request)
-                user_basket = cls._get_user_basket(request)
-                response = (user_basket, HTTP_200_OK)
-
+            product.is_valid(raise_exception=True)
+            cls._remove_product_from_user(product.data, request)
+            user_basket = cls._get_user_basket(request)
+            response = (user_basket, HTTP_200_OK)
             cache.set(request.session["basket"], response, 360)
             return Response(*response)
         except ValidationError as exc:
@@ -149,13 +143,12 @@ class BasketHandler:
             int(product_id) for product_id in request.session["basket"].keys()
         ]
         basket_products = (
-            Product.objects.filter(id__in=products_ids, is_active=True).
-            prefetch_related("images", "tags", "reviews")
+            Product.objects.prefetch_related("images", "tags", "reviews").
+            filter(id__in=products_ids, is_active=True)
         )
         for i_product in basket_products:
             i_product.required_amount = (
                 request.session["basket"][str(i_product.id)]["count"]
             )
             basket_data.append(BucketProductSerializer(i_product).data)
-        print(1111111111111, basket_data)
         return basket_data

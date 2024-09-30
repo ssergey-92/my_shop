@@ -2,12 +2,13 @@ import traceback
 from typing import Optional
 
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.db import transaction
 from django.db.models import QuerySet
 
 from rest_framework.exceptions import ValidationError
+
 from rest_framework.response import Response
-from rest_framework.request import Request
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST,
@@ -57,11 +58,12 @@ class OrderHandler:
 
         try:
             order = Order.get_by_id_with_prefetch(order_id)
-            if not order:
-                raise OrderException(unexsist_order_error.format(id=order_id))
-
             order_data = OutOrderSerializer(order).data
             return Response(order_data, HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response(
+                unexsist_order_error.format(id=order_id), HTTP_400_BAD_REQUEST,
+            )
         except Exception as exc:
             app_logger.error(traceback.print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
@@ -75,18 +77,16 @@ class OrderHandler:
                 Order.get_user_orders_with_prefetch(user).
                 order_by("-created_at")
             )
-            if not orders:
-                orders_data = {"msg": "There is no active orders!"}
-            else:
-                orders_data = OutOrderSerializer(orders, many=True).data
-
+            orders_data = OutOrderSerializer(orders, many=True).data
             return Response(orders_data, HTTP_200_OK)
         except Exception as exc:
             app_logger.error(traceback.print_exception(exc))
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
-    def create_init_order(cls, request: Request) -> Response:
+    def create_init_order(
+            cls, order_details: dict, user: User, session: Session
+    ) -> Response:
         """Handle logic for creating 'init' order.
 
         If request body is valid then check and reduce stock products quantity
@@ -94,30 +94,39 @@ class OrderHandler:
         status "Created" and clean basket.  Return corresponding response.
 
         """
-        order_data = cls._get_init_order_data(request.data)
-        if not order_data["products"]:
-            raise OrderException(empty_order_error)
 
-        products_ids = list(order_data["products"].keys())
-        with transaction.atomic():
-            stock_products = Product.select_available_products(products_ids)
-            if len(order_data["products"]) != stock_products.count():
-                cls._raise_unavailable_products_error(products_ids)
+        try:
+            order_data = cls._get_init_order_data(order_details)
+            products_ids = list(order_data["products"].keys())
+            with transaction.atomic():
+                stock_products = Product.select_available_products(
+                    products_ids
+                )
+                if len(order_data["products"]) != stock_products.count():
+                    cls._raise_unavailable_products_error(products_ids)
 
-            order = Order.objects.create(
-                created_by=request.user,
-                products_cost=order_data["cost"],
-                total_cost=order_data["cost"],
-                status=cls._created_order_status,
-            )
-            cls._reduce_stock_products(stock_products, order_data["products"])
-            OrderAndProduct.bulk_add(order_data["products"].values(), order.id)
-        request.session.pop("basket", None)
-
-        return Response({"orderId": order.id}, HTTP_200_OK)
+                order = Order.objects.create(
+                    created_by=user,
+                    products_cost=order_data["cost"],
+                    total_cost=order_data["cost"],
+                    status=cls._created_order_status,
+                )
+                cls._reduce_stock_products(
+                    stock_products, order_data["products"]
+                )
+                OrderAndProduct.bulk_add(
+                    order_data["products"].values(), order.id
+                )
+            session.pop("basket", None)
+            return Response({"orderId": order.id}, HTTP_200_OK)
+        except ValidationError as exc:
+            return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            app_logger.error(traceback.print_exception(exc))
+            return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
-    def confirm_order(cls, request: Request, order_id: int) -> Response:
+    def confirm_order(cls, order_details:dict, order_id: int) -> Response:
         """Handle logic for confirming order.
 
         If request body data is valid then update init order(order_id).
@@ -125,15 +134,13 @@ class OrderHandler:
 
         """
         try:
-            order_data = cls._get_confirm_order_data(request.data)
+            order_data = OrderConfirmationSerializer(data=order_details)
+            order_data.is_valid(raise_exception=True)
             with transaction.atomic():
                 order = Order.objects.select_for_update().get(id=order_id)
-                if not order:
-                    raise OrderException("Order is not exist!")
-
-                cls._update_init_order(order, order_data)
+                cls._update_init_order(order, order_data.data)
             return Response({"orderId": order.id}, status=HTTP_200_OK)
-        except (ValidationError, OrderException) as exc:
+        except (ValidationError, Order.DoesNotExist) as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
         except Exception as exc:
             app_logger.error(traceback.print_exception(exc))
@@ -197,24 +204,11 @@ class OrderHandler:
         order_cost = 0
         for i_product in request_data:
             product_data = OrderedProductSerializer(data=i_product)
-            if not product_data.is_valid():
-                raise ValidationError(product_data.errors)
-
-            product_data = product_data.data
-            order_cost += product_data["total_price"]
-            products[product_data["product_id"]] = product_data
+            product_data.is_valid(raise_exception=True)
+            order_cost += product_data.data["total_price"]
+            products[product_data.data["product_id"]] = product_data.data
 
         return {"products": products, "cost": order_cost}
-
-    @staticmethod
-    def _get_confirm_order_data(request_data: dict) -> dict:
-        """Validate and sort 'confirm order' data from request body."""
-
-        order_data = OrderConfirmationSerializer(data=request_data)
-        if not order_data.is_valid():
-            raise ValidationError(order_data.errors)
-
-        return order_data.data
 
 
     @staticmethod

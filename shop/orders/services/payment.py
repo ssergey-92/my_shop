@@ -1,7 +1,6 @@
 import traceback
 
 from rest_framework.exceptions import ValidationError
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -24,7 +23,7 @@ class PaymentHandler:
     _rejected_payment_status = OrderStatus.objects.get(name="payment rejected")
 
     @classmethod
-    def pay_order(cls, request: Request, order_id: int) -> Response:
+    def pay_order(cls, card_details: dict, order_id: int) -> Response:
         """Handle logic to pay user's order by card.
 
         Validate user card details. If valid update order status and call
@@ -32,11 +31,9 @@ class PaymentHandler:
 
         """
         try:
-            card_details = PaymentCardSerializer(data=request.data)
-            if not card_details.is_valid():
-                raise ValidationError(card_details.errors)
-
-            payment_details = card_details.data
+            card_data = PaymentCardSerializer(data=card_details)
+            card_data.is_valid(raise_exception=True)
+            payment_details = card_data.data
             payment_details["charge_price"] = float(
                 Order.objects.filter(id=order_id)
                 .values_list("total_cost", flat=True)[0]

@@ -100,7 +100,7 @@ class Order(models.Model):
         """Get active order by id with prefetch related data."""
 
         return (
-            cls.objects.filter(id=order_id, is_active=True).
+            cls.objects.
             select_related("created_by", "created_by__profile").
             prefetch_related(
                 "products",
@@ -110,7 +110,7 @@ class Order(models.Model):
                 "products__specifications",
                 "orderandproduct_set",
             ).
-            first()
+            get(id=order_id, is_active=True)
         )
 
     @classmethod
@@ -118,7 +118,7 @@ class Order(models.Model):
         """Get user's active orders with prefetch related data."""
 
         return (
-            cls.objects.filter(created_by=user, is_active=True).
+            cls.objects.
             select_related("created_by", "created_by__profile").
             prefetch_related(
                 "products",
@@ -127,6 +127,7 @@ class Order(models.Model):
                 "products__reviews",
                 "products__specifications",
                 "orderandproduct_set",
-            )
+            ).
+            filter(created_by=user, is_active=True)
         )
 
