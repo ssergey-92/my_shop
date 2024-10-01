@@ -1,8 +1,8 @@
-import traceback
+from traceback import format_exc as tb_format_exc
 from typing import Optional
 
 from django.contrib.auth.models import User
-from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from django.db import transaction
 from django.db.models import QuerySet
 
@@ -64,8 +64,8 @@ class OrderHandler:
             return Response(
                 unexsist_order_error.format(id=order_id), HTTP_400_BAD_REQUEST,
             )
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
@@ -79,13 +79,13 @@ class OrderHandler:
             )
             orders_data = OutOrderSerializer(orders, many=True).data
             return Response(orders_data, HTTP_200_OK)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
     def create_init_order(
-            cls, order_details: dict, user: User, session: Session
+            cls, order_details: dict, user: User, session: SessionStore,
     ) -> Response:
         """Handle logic for creating 'init' order.
 
@@ -121,8 +121,8 @@ class OrderHandler:
             return Response({"orderId": order.id}, HTTP_200_OK)
         except ValidationError as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
@@ -142,8 +142,8 @@ class OrderHandler:
             return Response({"orderId": order.id}, status=HTTP_200_OK)
         except (ValidationError, Order.DoesNotExist) as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod

@@ -1,4 +1,4 @@
-import traceback
+from traceback import format_exc as tb_format_exc
 
 from django.core.cache import cache
 from rest_framework.exceptions import ValidationError
@@ -42,8 +42,8 @@ class BasketHandler:
             return Response(*response)
         except ValidationError as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
@@ -64,8 +64,8 @@ class BasketHandler:
             response = (user_basket, HTTP_200_OK)
             cache.set(request.session["basket"], response, 360)
             return Response(*response)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
@@ -91,8 +91,8 @@ class BasketHandler:
             return Response(*response)
         except ValidationError as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(traceback.print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
