@@ -1,10 +1,12 @@
 """Handle business logic for app endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import IntegrityError
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -28,8 +30,7 @@ from common.utils import server_error
 class ProfileHandler:
     """Class for handling logic for Profile related endpoints"""
 
-    _invalid_password_error = {"error": "Invalid user password!"}
-    _profile_error = {"error": "User profile is not found!"}
+    _invalid_password_error = "Invalid user password!"
     _successful_psw_update = {"msg": "Password was successfully changed."}
     _successful_avatar_update = {"msg": "Avatar was successfully changed."}
     _http_bad_request = HTTP_400_BAD_REQUEST
@@ -37,7 +38,7 @@ class ProfileHandler:
     _http_internal_error = HTTP_500_INTERNAL_SERVER_ERROR
 
     @classmethod
-    def get_own_profile(cls, request: Request) -> Response:
+    def get_own_profile(cls, user_id: int) -> Response:
         """Handle logic for getting user's details.
 
         Check that profile is existed for user from request and return
@@ -45,21 +46,20 @@ class ProfileHandler:
 
         """
         try:
-            profile = Profile.get_by_user_id_with_avatar(request.user.id)
-            if profile:
-                return Response(
-                    OutProfileSerializer(profile).data, cls._http_success,
-                )
-            error = cls._profile_error
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
-            error = server_error
-
-        return Response(error, cls._http_internal_error)
-
+            profile = Profile.get_by_user_id_with_prefetch(user_id)
+            return Response(
+                OutProfileSerializer(profile).data, cls._http_success,
+            )
+        except Profile.DoesNotExist as exc:
+            return Response({"error": str(exc)} ,cls._http_bad_request)
+        except (Profile.MultipleObjectsReturned, Exception) as exc:
+            app_logger.error(tb_format_exc())
+            return Response(server_error, cls._http_internal_error)
 
     @classmethod
-    def update_own_avatar(cls, request: Request) -> Response:
+    def update_own_avatar(
+            cls, avatar_file: InMemoryUploadedFile, user_id: int,
+    ) -> Response:
         """Handle logic for updating user's avatar.
 
         Validate request data, check that profile is existed for user from
@@ -68,23 +68,23 @@ class ProfileHandler:
 
         """
         try:
-            validation_error = validate_image_src(request.FILES["avatar"])
+            validation_error = validate_image_src(avatar_file)
             if validation_error:
                 return Response(validation_error, cls._http_bad_request)
 
-            profile = Profile.get_by_user_id_with_avatar(request.user.id)
-            if not profile:
-                app_logger.error(cls._profile_error)
-                return Response(cls._profile_error, cls._http_internal_error)
-
-            profile.set_new_avatar(request.FILES["avatar"])
+            profile = Profile.get_by_user_id_with_prefetch(user_id)
+            profile.set_new_avatar(avatar_file)
             return Response(cls._successful_avatar_update, cls._http_success)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Profile.DoesNotExist as exc:
+            return Response({"error": str(exc)} ,cls._http_bad_request)
+        except (Profile.MultipleObjectsReturned, Exception) as exc:
+            app_logger.error(tb_format_exc())
             return Response(server_error, cls._http_internal_error)
 
     @classmethod
-    def update_own_profile(cls, request: Request) -> Response:
+    def update_own_profile(
+            cls, profile_details: dict, user_id: int
+    ) -> Response:
         """Handle logic for updating user profile details.
 
         Validate request data, check that profile is existed for user from
@@ -93,33 +93,24 @@ class ProfileHandler:
 
         """
         try:
-            request.data.pop("avatar")
-            profile_data = InProfileSerializer(data=request.data)
-            if not profile_data.is_valid():
-                return Response(
-                    {"error": profile_data.errors}, cls._http_bad_request,
-                )
-
-            profile = Profile.objects.get(user_id=request.user.id)
-            if not profile:
-                Response(cls._profile_error, cls._http_internal_error)
-
-            profile.full_name = profile_data.validated_data["fullName"]
-            profile.unique_email = profile_data.validated_data["email"]
-            profile.unique_phone = profile_data.validated_data["phone"]
-            profile.save()
+            profile_details.pop("avatar")
+            profile_data = InProfileSerializer(data=profile_details)
+            profile_data.is_valid(raise_exception=True)
+            profile = Profile.custom_update(profile_data.data, user_id)
             return Response(
                 OutProfileSerializer(profile).data, cls._http_success,
             )
-        except IntegrityError as exc:
-            app_logger.error(tb_print_exception(exc))
-            return Response({"error": exc.args}, cls._http_bad_request)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except (ValidationError, IntegrityError, Profile.DoesNotExist) as exc:
+            app_logger.debug(tb_format_exc())
+            return Response({"error": str(exc)}, cls._http_bad_request)
+        except (Profile.MultipleObjectsReturned, Exception) as exc:
+            app_logger.error(tb_format_exc())
             return Response({"error": exc}, cls._http_internal_error)
 
     @classmethod
-    def update_own_password(cls, request: Request) -> Response:
+    def update_own_password(
+            cls, password_details: dict, user: User,
+    ) -> Response:
         """Handle logic for updating user password.
 
         Validate request data, check current password for user from request
@@ -128,38 +119,32 @@ class ProfileHandler:
 
         """
         try:
-            password_details = ChangePasswordSerializer(data=request.data)
-            if not password_details.is_valid():
-                return Response(
-                    {"error": password_details.errors}, cls._http_bad_request,
-                )
-
+            password_data = ChangePasswordSerializer(data=password_details)
+            password_data.is_valid(raise_exception=True)
             user = authenticate(
-                username=request.user.username,
-                password=password_details.validated_data["currentPassword"],
+                username=user.username,
+                password=password_data.data["current_password"],
             )
             if not user:
-                return Response(
-                    cls._invalid_password_error, cls._http_bad_request,
-                )
-            update_user_password(
-                user, password_details.validated_data["newPassword"],
-            )
-            cls._reset_user_session(request, user)
+                raise ValidationError(cls._invalid_password_error)
+            update_user_password(user, password_data.data["new_password"])
             return Response(cls._successful_psw_update, cls._http_success)
+        except ValidationError as exc:
+            app_logger.debug(tb_format_exc())
+            return Response({"error": str(exc)}, cls._http_bad_request)
         except Exception as exc:
             app_logger.error(exc)
             return Response(server_error, cls._http_internal_error)
 
     @staticmethod
-    def _reset_user_session(request: Request, user: User) -> None:
+    def reset_user_session(request: Request, user_id: int) -> None:
         """Reset session details for user.
 
-        Add user bucket to session due to session clearing while user logout.
+        Get updated User for login and move bucket from old to new session.
         """
 
         user_basket = request.session.get("basket", {})
         logout(request)
+        login(request, User.objects.get(id=user_id))
         request.session["basket"] = user_basket
-        login(request, user)
-        app_logger.info(f"Session was reset for {user.id=}")
+        app_logger.info(f"Session was reset for {user_id=}")

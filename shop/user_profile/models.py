@@ -1,16 +1,10 @@
 """App db models."""
 
-from typing import Optional
-
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 
-from common.custom_logger import app_logger
-
 unavailable_profile_image = "Your profile photo is currently unavailable."
-unavailable_file = "Your '{file_name}' is currently unavailable!"
-several_profiles_error = "{total} profile found for user.id: {user_id}!"
 
 
 class Profile(models.Model):
@@ -28,28 +22,32 @@ class Profile(models.Model):
     def set_new_avatar(self, avatar_file: InMemoryUploadedFile) -> None:
         """Save or update avatar for profile."""
 
-        alt = unavailable_file.format(file_name=avatar_file.name)
         if hasattr(self, "avatar"):
-            self.avatar.custom_update(avatar_file, alt)
+            self.avatar.custom_update(avatar_file, unavailable_profile_image)
         else:
-            Avatar.objects.create(profile=self, src=avatar_file, alt=alt)
+            Avatar.objects.create(
+                profile=self, src=avatar_file, alt=unavailable_profile_image,
+            )
 
     @classmethod
-    def get_by_user_id_with_avatar(cls, user_id: int) -> Optional["Profile"]:
+    def get_by_user_id_with_prefetch(cls, user_id: int) -> "Profile":
         """Get profile with select related Avatar object."""
 
-        profile_with_avatar = (
-            cls.objects.filter(user_id=user_id).
-            select_related("avatar")
+        return (
+            cls.objects.
+            select_related("avatar").
+            get(user_id=user_id)
         )
-        if len(profile_with_avatar) > 1:
-            app_logger.error(
-                several_profiles_error.format(
-                    total=len(profile_with_avatar), user_id=user_id
-                )
-            )
-            return None
-        return profile_with_avatar[0]
+
+    @classmethod
+    def custom_update(cls, update_details: dict, user_id) -> "Profile":
+        """Update Profile as per update_details and return it."""
+
+        profile = cls.objects.get(user_id=user_id)
+        for field, value in update_details.items():
+            setattr(profile, field, value)
+        profile.save()
+        return profile
 
 
 def get_avatar_path(instance: "Avatar", filename: str) -> str:
@@ -61,7 +59,9 @@ def get_avatar_path(instance: "Avatar", filename: str) -> str:
 
 
 class Avatar(models.Model):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    profile = models.OneToOneField(
+        Profile, on_delete=models.CASCADE, related_name="avatar",
+    )
     src = models.ImageField(
         upload_to=get_avatar_path,
         max_length=150,

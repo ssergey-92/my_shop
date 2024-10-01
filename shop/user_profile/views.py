@@ -16,12 +16,12 @@ class FullProfileView(APIView):
     def get(self, request: Request) -> Response:
         """Get Profile details for user from request."""
 
-        return ProfileHandler.get_own_profile(request)
+        return ProfileHandler.get_own_profile(request.user.id)
 
     def post(self, request: Request) -> Response:
         """Update Profile details for user from request."""
 
-        return ProfileHandler.update_own_profile(request)
+        return ProfileHandler.update_own_profile(request.data, request.user)
 
 
 class ProfilePasswordView(APIView):
@@ -30,7 +30,11 @@ class ProfilePasswordView(APIView):
     def post(self, request: Request) -> Response:
         """Update password for user from request."""
 
-        return ProfileHandler.update_own_password(request)
+        response = ProfileHandler.update_own_password(
+            request.data, request.user,
+        )
+        ProfileHandler.reset_user_session(request, request.user.id)
+        return response
 
 
 class ProfileAvatarView(APIView):
@@ -39,4 +43,6 @@ class ProfileAvatarView(APIView):
     def post(self, request: Request) -> Response:
         """Update avatar image for user from request."""
 
-        return ProfileHandler.update_own_avatar(request)
+        return ProfileHandler.update_own_avatar(
+            request.FILES["avatar"], request.user.id,
+        )

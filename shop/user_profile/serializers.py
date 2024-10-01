@@ -1,4 +1,5 @@
 """App serializers for django rest framework."""
+from typing import Optional
 
 from rest_framework import serializers
 
@@ -26,8 +27,11 @@ class InProfileSerializer(serializers.Serializer):
 
         raise serializers.ValidationError(validation_error)
 
-    def validate_phone(self, value: str) -> str:
+    def validate_phone(self, value: str) -> Optional[str]:
         """Extra validation for phone field."""
+
+        if not value:
+            return value
 
         phone = value.strip()
         validation_error = validate_phone_number(phone)
@@ -35,6 +39,18 @@ class InProfileSerializer(serializers.Serializer):
             return phone
 
         raise serializers.ValidationError(validation_error)
+
+    def to_representation(self, instance: dict) -> dict:
+        """Sort validated data to required format."""
+
+        formated_instance = {
+            "full_name": instance["fullName"],
+            "unique_email": instance["email"],
+        }
+        if instance.get("phone", None):
+            formated_instance["unique_phone"]  = instance["phone"]
+
+        return formated_instance
 
 
 class OutAvatarSerializer(serializers.ModelSerializer):
@@ -71,3 +87,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     currentPassword = serializers.CharField(allow_blank=False, required=True)
     newPassword = serializers.CharField(allow_blank=False, required=True)
+
+    def to_representation(self, instance: dict) -> dict:
+        """Sort validated data to required format."""
+
+        return {
+            "current_password": instance["currentPassword"],
+            "new_password": instance["newPassword"],
+        }
