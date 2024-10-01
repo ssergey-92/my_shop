@@ -26,3 +26,12 @@ class SignUpSerializer(serializers.Serializer):
             return name
 
         raise serializers.ValidationError(validation_error)
+
+    def to_representation(self, instance: dict) -> dict:
+        """Sort validated data to required format."""
+
+        return {
+            "first_name": instance["name"],
+            "username": instance["username"],
+            "password": instance["password"],
+        }
