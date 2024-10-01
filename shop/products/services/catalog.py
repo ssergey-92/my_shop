@@ -1,6 +1,6 @@
 """Handle business logi for catalog related endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 from typing import Optional
 
 from django.core.cache import cache
@@ -69,8 +69,8 @@ class CatalogHandler:
             response_data = (catalog_data, HTTP_200_OK)
         except ValidationError as exc:
             response_data = ({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(f"{tb_print_exception(exc)}")
+        except Exception:
+            app_logger.error(f"{tb_format_exc()}")
             response_data = (server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
         app_logger.debug(f"SET CACHE {search_details=}: {response_data=}")

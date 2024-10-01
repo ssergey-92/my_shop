@@ -1,6 +1,6 @@
 """Handle business logi for products related endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 
 from random import sample
 
@@ -49,8 +49,8 @@ class ProductHandler:
                 popular_products_qs, many=True,
             )
             return Response(popular_products.data, HTTP_200_OK)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
@@ -65,8 +65,8 @@ class ProductHandler:
                 limited_products_qs, many=True,
             )
             return Response(limited_products.data, HTTP_200_OK)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -87,8 +87,8 @@ class ProductHandler:
                 banners_products_qs, many=True,
             )
             return Response(banners_products.data, HTTP_200_OK)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
@@ -112,8 +112,8 @@ class ProductHandler:
             response_data = (sales_products_details, HTTP_200_OK)
         except ValidationError as exc:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             app_logger.debug(f"SET CACHE {query_params=}: {response_data=}")
@@ -131,8 +131,8 @@ class ProductHandler:
         except Product.DoesNotExist:
             app_logger.info(f"Product with id {product_id} does not exist!")
             return Response(product_id_error, HTTP_404_NOT_FOUND)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
 

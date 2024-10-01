@@ -1,6 +1,6 @@
 """Handle business logi for product review related endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 
 from django.db import IntegrityError
 from rest_framework.exceptions import ValidationError
@@ -60,6 +60,6 @@ class ProductReviewHandler:
             )
         except Product.DoesNotExist:
             return Response(product_id_error, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)

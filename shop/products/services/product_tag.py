@@ -1,9 +1,8 @@
 """Handle business logi for product tags related endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 
 from rest_framework.exceptions import ValidationError
-from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -48,6 +47,6 @@ class ProductTagHandler:
             return Response({"error": str(exc)}, HTTP_400_BAD_REQUEST)
         except Category.DoesNotExist:
             return Response(category_unexist_error, HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)

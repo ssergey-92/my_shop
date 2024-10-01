@@ -1,6 +1,6 @@
 """Handle business logi for category related endpoints"""
 
-from traceback import print_exception as tb_print_exception
+from traceback import format_exc as tb_format_exc
 
 from django.core.cache import cache
 from rest_framework.response import Response
@@ -42,8 +42,8 @@ class CategoryHandler:
                 categories_qs, many=True,
             ).data
             response_data = (categories_tree_data, status.HTTP_200_OK)
-        except Exception as exc:
-            app_logger.error(tb_print_exception(exc))
+        except Exception:
+            app_logger.error(tb_format_exc())
             return Response(
                 server_error, status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
