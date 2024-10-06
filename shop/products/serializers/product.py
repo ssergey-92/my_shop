@@ -43,22 +43,9 @@ class CommonProductSerializer(serializers.ModelSerializer):
         return obj.category.id if obj.category else None
 
     def get_price(self, obj: Product) -> float:
-        """Get Product price.
+        """Get Product price."""
 
-        If Product sales flag is activated, sales price is set, today date is
-        between sales dates if set then use sales price else ordinary price.
-        """
-
-        today_date = date.today()
-        if (
-                obj.is_sales and
-                obj.sales_price and
-                (obj.sales_from is None or obj.sales_from <= today_date) and
-                (obj.sales_to is None or today_date <= obj.sales_to)
-        ):
-            return float(obj.sales_price)
-
-        return float(obj.price)
+        return float(obj.count_final_price())
 
     def get_date(self, obj: Product) -> datetime:
         """Get Product created date."""

@@ -1,13 +1,13 @@
 """App db model Product."""
 
 from datetime import date
+from decimal import Decimal
 
 from django.db import models
 from django.db.models import QuerySet, Q, Sum
 
 from .product_review import ProductReview
 from common.custom_logger import app_logger
-
 
 class Product(models.Model):
     title = models.CharField(
@@ -56,7 +56,7 @@ class Product(models.Model):
     def __str__(self) -> str:
         """String representation of Product object."""
 
-        return f"Product id: {self.id} title: {self.title}"
+        return f"ID {self.id}: {self.title} - {self.count_final_price()} $"
 
     def add_new_review(self, new_review_data: dict) -> None:
         """Add new review to product."""
@@ -66,6 +66,25 @@ class Product(models.Model):
         product_review.save()
         self.reviews.add(product_review)
         self.save()
+
+
+    def count_final_price(self) -> Decimal:
+        """Get product price bases sales if available.
+
+        If Product sales flag is activated, sales price is set, today date is
+        between sales dates if set then use sales price else ordinary price.
+        """
+
+        today_date = date.today()
+        if (
+                self.is_sales and
+                self.sales_price and
+                (self.sales_from is None or self.sales_from <= today_date) and
+                (self.sales_to is None or today_date <= self.sales_to)
+        ):
+            return self.sales_price
+
+        return self.price
 
     @classmethod
     def get_limited_products(cls, total_products: int) -> QuerySet:
@@ -148,9 +167,19 @@ class Product(models.Model):
         """
         return (
             cls.objects.
-            filter(is_active=True, count__gt=0, id__in=products_ids).
-            select_for_update()
+            select_for_update().
+            filter(is_active=True, count__gt=0, id__in=products_ids)
+
         )
+    @classmethod
+    def filter_available(cls) -> QuerySet:
+        """Filter available products.
+
+        Product considered is available if is_active=True and count > 0.
+
+        """
+        return cls.objects.filter(is_active=True, count__gt=0)
+
 
     @classmethod
     def get_by_id_with_prefetch(cls, id: int) -> QuerySet:
