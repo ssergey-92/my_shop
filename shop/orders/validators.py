@@ -5,11 +5,11 @@ from common.custom_logger import app_logger
 
 city_name_error = (
     "City name {name} has unsupported format! "
-    "It should match pattern {pattern}.!"
+    "It should contain only letters and space! Min word len is 3 letters!"
 )
 address_error = (
-    "Address {address} has unsupported format! "
-    "It should match pattern {pattern}.!"
+    "Address {address} has unsupported format! It should contain only letters, "
+    "digits and space! Min address length is 5 symbols!"
 )
 
 def validate_city_name(city_name: str) -> Optional[str]:

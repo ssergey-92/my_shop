@@ -100,7 +100,7 @@ class CategoryInlineForm(forms.ModelForm):
         model = Category
         fields = ["title", "parent", "image", "is_active"]
 
-    def clean(self) -> Optional[str]:
+    def clean(self) -> dict:
         """Extra validation for 'parent' field.
 
         Parent field is required as this form is used to add subcategory.

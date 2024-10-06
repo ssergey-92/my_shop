@@ -1,23 +1,25 @@
+from decimal import Decimal
 from typing import Optional
 
 from django.contrib.auth.models import User
-from django.db import models
-from django.db.models import QuerySet
+from django.db import models, transaction
+from django.db.models import QuerySet, F, Sum
 
 from . import Product
+from orders.exceptions import OrderException
 
 
 class OrderAndProduct(models.Model):
     """Model Class is used as intermediate table for Order and Product."""
 
     order = models.ForeignKey(
-        to="Order", on_delete=models.CASCADE,  null=False, blank=False,
+        to="Order", on_delete=models.CASCADE, null=False, blank=False,
     )
     product = models.ForeignKey(
-        to=Product, on_delete=models.CASCADE,  null=False, blank=False,
+        to=Product, on_delete=models.CASCADE, null=False, blank=False,
     )
     total_quantity = models.PositiveIntegerField(
-        default=0,  null=False, blank=False,
+        default=0, null=False, blank=False,
     )
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=False,
@@ -41,21 +43,117 @@ class OrderAndProduct(models.Model):
             [cls(order_id=order_id, **product) for product in products_data]
         )
 
+    @classmethod
+    def count_order_price(cls, order_id: int) -> Decimal:
+        """Count order products price."""
+
+        order_price = (
+            cls.objects.filter(order_id=order_id).
+            aggregate(order_price=Sum('total_price'))
+        )["order_price"]
+        return order_price or 0
+
+    def custom_delete(self) -> None:
+        """Delete instance in transaction with related objects updates.
+
+        Delete instance, update related Product and Order as per instance
+        details.
+
+        """
+
+        with transaction.atomic():
+            (
+                Product.objects.filter(id=self.product.id).
+                update(count=(F("count") + self.total_quantity))
+            )
+            (
+                Order.objects.filter(id=self.order.id).
+                update(
+                    products_cost=(F("products_cost") - self.total_price),
+                    total_cost=(F("total_cost") - self.total_price),
+                )
+            )
+            self.delete()
+
+    def custom_create(self) -> None:
+        """Create instance in transaction with related objects updates.
+
+        Create instance, select for update related Product and Order and
+        update them as per instance details. Raise error in case product
+        quantity is less than required quantity.
+
+        """
+        with transaction.atomic():
+            product = (
+                Product.objects.select_for_update().
+                get(id=self.product.id, is_active=True, count__gte=1)
+            )
+            if product.count < self.total_quantity:
+                raise OrderException(
+                    f"Correct your order # {self.order.id}! Only "
+                    f"{product.count} '{product.title}' are available to "
+                    f"purchase!"
+                )
+            product.count -= self.total_quantity
+            product.save()
+            (
+                Order.objects.filter(id=self.order.id).
+                update(
+                    products_cost=(F("products_cost") + self.total_price),
+                    total_cost=(F("total_cost") + self.total_price),
+                )
+            )
+            self.save()
+
+    def custom_update(
+            self, previous_total_price: Decimal, previous_total_qnty: int,
+    ) -> None:
+        """Update instance in transaction with related objects updates.
+
+        Update instance, select for update related Product and Order and
+        update them as per instance details. Raise error in case product
+        quantity is less than required quantity.
+
+        """
+
+        with transaction.atomic():
+            product = (
+                Product.objects.select_for_update().
+                get(id=self.product.id, is_active=True, count__gte=1)
+            )
+            extra_products_qnty = self.total_quantity - previous_total_qnty
+            if product.count < extra_products_qnty:
+                raise OrderException(
+                    f"Correct your order # {self.order.id}! Only "
+                    f"{product.count} '{product.title}' are available to purchase!"
+                )
+            product.count -= extra_products_qnty
+            product.save()
+            extra_products_price = self.total_price - previous_total_price
+            (
+                Order.objects.filter(id=self.order.id).
+                update(
+                    products_cost=(F("products_cost") + extra_products_price),
+                    total_cost=(F("total_cost") + extra_products_price),
+                )
+            )
+            self.save()
 
 
 class Order(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    receiver_fullname = models.CharField(max_length=100, null=True, blank=False)
+    receiver_fullname = models.CharField(max_length=100, null=True,
+                                         blank=False)
     receiver_email = models.EmailField(max_length=50, null=True, blank=False)
     receiver_phone = models.CharField(max_length=12, null=True, blank=False)
     products_cost = models.DecimalField(
-        max_digits=10, decimal_places=2, null=False, blank=True,
+        max_digits=10, decimal_places=2, null=False, blank=True, default=0,
     )
     delivery_cost = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, blank=True,
     )
     total_cost = models.DecimalField(
-        max_digits=10, decimal_places=2, null=False, blank=True,
+        max_digits=10, decimal_places=2, null=False, blank=True, default=0,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     city = models.CharField(max_length=50, null=True, blank=False)
@@ -88,12 +186,12 @@ class Order(models.Model):
 
     class Meta:
         verbose_name = "Order: full details"
-        verbose_name_plural = "Orders full details"
+        verbose_name_plural = "Orders: full details"
 
     def __str__(self) -> str:
         """String representation of instance."""
 
-        return f"Order id: {self.id} created by user: {self.user.id}"
+        return f"Order id: {self.id} created by user: {self.created_by.id}"
 
     @classmethod
     def get_by_id_with_prefetch(cls, order_id: int) -> Optional["Order"]:
@@ -131,3 +229,16 @@ class Order(models.Model):
             filter(created_by=user, is_active=True)
         )
 
+    @classmethod
+    def reset_delivery_related_costs(
+            cls, order_id: int, delivery_cost: Decimal,
+    ) -> None:
+        """Reset delivery and total costs."""
+
+        (
+            cls.objects.filter(id=order_id).
+            update(
+                total_cost=F("products_cost") + delivery_cost,
+                delivery_cost=delivery_cost
+            )
+        )
