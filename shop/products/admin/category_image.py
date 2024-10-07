@@ -1,4 +1,4 @@
-"""Admin model for CategoryImage."""
+"""Admin model for image of category."""
 
 from typing import Optional
 
@@ -16,6 +16,8 @@ from products.forms import (
 
 @admin.register(CategoryImage)
 class CategoryImageAdmin(admin.ModelAdmin):
+    """Model admin class for 'CategoryImage' model."""
+
     model = CategoryImage
     actions = ("delete_selected",)
     form = CategoryImageForm

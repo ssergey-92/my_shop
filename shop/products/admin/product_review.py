@@ -1,4 +1,4 @@
-"""Admin model for ProductReview."""
+"""Admin model for reviews of product."""
 
 from typing import Any
 
@@ -14,6 +14,9 @@ from products.forms import ProductReviewForm
 
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):
+    """Model admin class for 'ProductReview' model."""
+
+    model = ProductReview
     actions = ("delete_selected",)
     form = ProductReviewForm
     list_display = ("id", "product", "rate", "author", "date")

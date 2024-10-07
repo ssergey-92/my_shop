@@ -1,4 +1,4 @@
-"""Admin models for Category."""
+"""Admin models for category of products."""
 
 from typing import Any, Optional, Union
 
@@ -22,6 +22,11 @@ from products.services import category_max_nesting_level
 
 
 class SubcategoryInline(admin.StackedInline):
+    """StackedInline admin class for 'Category' model.
+
+    Class is design to use as inlines for 'Category' model admin.
+
+    """
     model = Category
     form = CategoryInlineForm
     verbose_name = "subcategories"
@@ -37,7 +42,6 @@ class SubcategoryInline(admin.StackedInline):
         max nesting limit then restrict auditing subcategories.
 
         """
-
         if (
                 not obj or
                 Category.get_nesting_level(obj.id) >= category_max_nesting_level
@@ -74,6 +78,8 @@ class SubcategoryInline(admin.StackedInline):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    """Model admin class for 'Category' model."""
+
     actions = (archive_items, restore_items)
     list_max_show_all = 20
     inlines = (SubcategoryInline,)

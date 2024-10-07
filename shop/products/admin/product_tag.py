@@ -11,6 +11,11 @@ from products.models import Product, ProductTag, ProductAndTag
 
 
 class ProductInline(admin.StackedInline):
+    """StackedInline admin class for 'Product' model.
+
+    Class is design to use as inlines for 'ProductTag' model admin.
+
+    """
     model = ProductAndTag
     verbose_name = "product"
     extra = 1
@@ -33,6 +38,9 @@ class ProductInline(admin.StackedInline):
 
 @admin.register(ProductTag)
 class ProductTagAdmin(admin.ModelAdmin):
+    """Model admin class for 'ProductSpecification' model."""
+
+    model = ProductTag
     actions = ("delete_selected",)
     inlines = (ProductInline,)
     list_display = ("id", "name")

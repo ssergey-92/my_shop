@@ -1,4 +1,4 @@
-"""Admin models for Product."""
+"""Admin models for products."""
 
 from django.contrib import admin
 from django.db.models import QuerySet, Sum
@@ -22,6 +22,11 @@ from products.models import (
 
 
 class ProductImageInline(admin.StackedInline):
+    """StackedInline admin class for 'ProductImage' model.
+
+    Class is design to use as inlines for 'Product' model admin.
+
+    """
     model = ProductImage
     form = ProductImageInlineForm
     verbose_name = "image"
@@ -29,12 +34,22 @@ class ProductImageInline(admin.StackedInline):
 
 
 class ProductTagInline(admin.StackedInline):
+    """StackedInline admin class for 'ProductAndTag' model.
+
+    Class is design to use as inlines for 'Product' model admin.
+
+    """
     model = ProductAndTag
     verbose_name = "tag"
     extra = 1
 
 
 class ProductReviewInline(admin.TabularInline):
+    """StackedInline admin class for 'ProductReview' model.
+
+    Class is design to use as inlines for 'Product' model admin.
+
+    """
     max_num = 10
     model = ProductReview
     form = ProductReviewForm
@@ -44,6 +59,11 @@ class ProductReviewInline(admin.TabularInline):
 
 
 class ProductSpecificationInline(admin.StackedInline):
+    """StackedInline admin class for 'ProductAndSpecification' model.
+
+    Class is design to use as inlines for 'Product' model admin.
+
+    """
     model = ProductAndSpecification
     verbose_name = "specification"
     extra = 1
@@ -51,6 +71,8 @@ class ProductSpecificationInline(admin.StackedInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    """Model admin class for 'Product' model."""
+
     actions = (archive_items, restore_items)
     list_max_show_all = 20
     form = ProductForm
@@ -101,7 +123,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        """Override method.Get query set with select/prefetch related objects."""
+        """Get query set with select/prefetch related objects."""
 
         return (
             Product.objects.

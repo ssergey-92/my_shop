@@ -27,7 +27,7 @@ class ProductForm(forms.ModelForm):
         fields = "__all__"
 
     def clean_price(self) -> Optional[str]:
-        """Extra validation for 'price' field."""
+        """Add extra validation for 'price' field."""
 
         price = self.cleaned_data.get("price")
         validation_error = validate_product_price(price)
@@ -37,7 +37,7 @@ class ProductForm(forms.ModelForm):
         raise ValidationError(validation_error)
 
     def clean_sorting_index(self) -> Optional[str]:
-        """Extra validation for 'sorting_index' field."""
+        """Add extra validation for 'sorting_index' field."""
 
         sorting_index = self.cleaned_data.get("sorting_index")
         if not sorting_index:
@@ -50,7 +50,7 @@ class ProductForm(forms.ModelForm):
         raise ValidationError(validation_error)
 
     def clean(self) -> dict:
-        """Extra validation for 'count' field."""
+        """Add Extra validation for 'count' field."""
 
         cleaned_data = super().clean()
         count = self.cleaned_data.get("count")
@@ -76,12 +76,17 @@ class ProductForm(forms.ModelForm):
 
 
 class ProductImageInlineForm(forms.ModelForm):
+    """Class ProductImageInlineForm. Custom form for django admin panel.
+
+     Class is used for ProductImage (InlineModelAdmin).
+
+     """
     class Meta:
         model = ProductImage
         fields = "__all__"
 
     def clean_src(self) -> ImageField:
-        """Add extra checks for image file of 'src' field."""
+        """Add extra validation for 'src' field."""
 
         src = self.cleaned_data.get("src")
         validation_error = validate_image_src(src)
@@ -92,12 +97,17 @@ class ProductImageInlineForm(forms.ModelForm):
 
 
 class ProductReviewForm(forms.ModelForm):
+    """Class ProductReviewForm. Custom form for django admin panel.
+
+     Class is used for ProductReview (admin.ModelAdmin).
+
+     """
     class Meta:
         model = ProductReview
         fields = "__all__"
 
     def clean_rate(self):
-        """Add extra checks for 'rate' field."""
+        """Add extra validation for 'rate' field."""
 
         rate = self.cleaned_data.get("rate")
         validation_error = validate_product_review_rate(rate)

@@ -1,4 +1,4 @@
-"""Admin model for ProductImage."""
+"""Admin model for images of product."""
 
 from typing import Any
 
@@ -15,6 +15,8 @@ from products.forms import (
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
+    """Model admin class for 'ProductImage' model."""
+
     model = ProductImage
     actions = ("delete_selected",)
     form = ProductImageInlineForm
@@ -43,4 +45,3 @@ class ProductImageAdmin(admin.ModelAdmin):
         if db_field.name == "product":
             kwargs["queryset"] = Product.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-

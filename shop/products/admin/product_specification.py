@@ -1,4 +1,4 @@
-"""Admin models for ProductSpecification."""
+"""Admin models for specifications of products."""
 
 from typing import Any
 
@@ -15,6 +15,11 @@ from products.models import (
 
 
 class ProductInline(admin.StackedInline):
+    """StackedInline admin class for 'Product' model.
+
+    Class is design to use as inlines for 'ProductSpecification' model admin.
+
+    """
     model = ProductAndSpecification
     verbose_name = "product"
     extra = 2
@@ -37,6 +42,9 @@ class ProductInline(admin.StackedInline):
 
 @admin.register(ProductSpecification)
 class ProductSpecificationAdmin(admin.ModelAdmin):
+    """Model admin class for 'ProductSpecification' model."""
+
+    model = ProductSpecification
     actions = ("delete_selected",)
     inlines = (ProductInline,)
     list_display = ("id", "name", "value")

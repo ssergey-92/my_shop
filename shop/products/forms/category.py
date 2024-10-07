@@ -20,17 +20,18 @@ can_not_add_subcategories = "Can not add subcategory for this category! "
 
 
 class CategoryImageForm(forms.ModelForm):
+    """Class CategoryImageForm. Custom form for django admin panel.
+
+     Class is used for CategoryImag(admin.ModelAdmin).
+
+     """
     class Meta:
         model = CategoryImage
         fields = ["src", "alt"]
 
     def clean_src(self) -> ImageField:
-        """Add extra checks for image file of 'src' field.
+        """Add extra validation for 'src' field."""
 
-        Returns:
-            ImageField: src field
-
-        """
         src = self.cleaned_data.get("src")
 
         validation_error = validate_image_src(src)
@@ -47,22 +48,17 @@ class CategoryForm(forms.ModelForm):
      Class is used for Category(admin.ModelAdmin).
 
      """
-
     class Meta:
         model = Category
         fields = ["id", "title", "parent", "image", "is_active"]
 
     def clean_parent(self) -> Optional[Category]:
-        """Extra validation for 'parent' field.
+        """Add extra validation for 'parent' field.
 
         If new instance is created check parent category nesting level if set.
         If parent field is changed, check additionally subcategories nesting
 
-        Returns:
-            str: parent object
-
         """
-
         parent_category = self.cleaned_data.get("parent")
         validation_error = ""
         app_logger.debug(f"{self.instance=} {parent_category=}")
@@ -101,16 +97,12 @@ class CategoryInlineForm(forms.ModelForm):
         fields = ["title", "parent", "image", "is_active"]
 
     def clean(self) -> dict:
-        """Extra validation for 'parent' field.
+        """Add Extra validation for 'parent' field.
 
         Parent field is required as this form is used to add subcategory.
         Check that 'parent' field is set and nesting level of parent category.
 
-        Returns:
-            str: cleaned data
-
         """
-
         cleaned_data = super().clean()
         if cleaned_data.get("parent"):
             validation_error = validate_parent_category_nesting(
