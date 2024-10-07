@@ -10,17 +10,17 @@ from orders.validators import validate_address, validate_city_name
 
 
 class OrderForm(forms.ModelForm):
+    """Class OrderForm. Custom form for django admin panel.
 
+     Class is used for Order (admin.ModelAdmin).
+
+     """
     class Meta:
         model = Order
         fields = '__all__'
 
-    def __init__(self, *args, **kwargs):
-        
-        super().__init__(*args, **kwargs)
-
     def clean_receiver_fullname(self) -> Optional[str]:
-        """Extra validation for 'receiver_fullname' field."""
+        """Add extra validation for 'receiver_fullname' field."""
 
         full_name = self.cleaned_data['receiver_fullname']
         if full_name is None:
@@ -34,7 +34,7 @@ class OrderForm(forms.ModelForm):
         raise forms.ValidationError(validation_error)
 
     def clean_receiver_phone(self) -> Optional[str]:
-        """Extra validation for 'receiver_phone' field."""
+        """Add extra validation for 'receiver_phone' field."""
 
         phone = self.cleaned_data.get('receiver_phone')
         if phone is None:
@@ -48,7 +48,7 @@ class OrderForm(forms.ModelForm):
         raise forms.ValidationError(validation_error)
 
     def clean_city(self) -> Optional[str]:
-        """Extra validation for 'city' field."""
+        """Add extra validation for 'city' field."""
 
         city = self.cleaned_data.get('city')
         if city is None:
@@ -61,7 +61,7 @@ class OrderForm(forms.ModelForm):
         raise forms.ValidationError(validation_error)
 
     def clean_address(self) -> Optional[str]:
-        """Extra validation for 'address' field."""
+        """Add extra validation for 'address' field."""
 
         address = self.cleaned_data.get('address')
         if address is None:

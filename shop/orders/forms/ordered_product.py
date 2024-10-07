@@ -8,6 +8,11 @@ from orders.services import OrderedProductHandler
 
 
 class OrderedProductInlineForm(forms.ModelForm):
+    """Class OrderedProductInlineForm. Custom form for django admin panel.
+
+     Class is used for OrderedProduct (admin.StackedInline).
+
+     """
     current_price = forms.DecimalField(
         label='Current Price', required=False, max_digits=10, decimal_places=2,
     )
@@ -65,7 +70,7 @@ class OrderedProductInlineForm(forms.ModelForm):
         raise ValidationError(error_msg)
 
     def _validate_product_total_qnty(self) -> None:
-        """Extra validation for field 'total_quantity' of Product.
+        """Add optional extra validation for field 'total_quantity'.
 
         If total_quantity is more than previous quantity then additionally
         check that product has enough quantity for editing to order.
@@ -94,7 +99,7 @@ class OrderedProductInlineForm(forms.ModelForm):
         )
 
     def clean(self) -> Optional[dict]:
-        """Extra validate and set fields values.
+        """Add Extra validate and set fields values.
 
         Start validation and set fields values if there is no errors during
         built in validation.

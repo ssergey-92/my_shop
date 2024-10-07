@@ -1,3 +1,5 @@
+"""Module with custom exceptions for app."""
+
 
 class OrderException(Exception):
     """Custom exception related to model Order."""

@@ -1,4 +1,6 @@
-import traceback
+"""Admin model for order."""
+
+from  traceback import format_exc as tb_format_exc
 from typing import Any
 
 from django.contrib import admin, messages
@@ -21,10 +23,15 @@ from orders.models import (
 from orders.services import DeliveryService
 
 
-class OrderProductInline(admin.StackedInline):
+class OrderedProductInline(admin.StackedInline):
+    """StackedInline admin class for 'OrderAndProduct' model.
+
+    Class is design to use as inlines for 'Order' model admin.
+
+    """
     model = OrderAndProduct
-    verbose_name = "Product"
-    verbose_name_plural = "Products"
+    verbose_name = "Ordered Product"
+    verbose_name_plural = "Ordered Products"
     readonly_fields = ["total_price"]
     form = OrderedProductInlineForm
     extra = 1
@@ -64,12 +71,12 @@ class OrderProductInline(admin.StackedInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    inlines = (OrderProductInline,)
+    """Model admin class for 'Order' model."""
+
+    inlines = (OrderedProductInline,)
     actions = (archive_items, restore_items)
     form = OrderForm
     list_max_show_all = 20
-    verbose_name = "Order"
-    verbose_name_plural = "Orders"
     list_display = (
         "id",
         "created_by",
@@ -205,7 +212,7 @@ class OrderAdmin(admin.ModelAdmin):
                     f"editing to order!"
                 )
             except Exception:
-                app_logger.error(traceback.format_exc())
+                app_logger.error(tb_format_exc())
                 error_msg = (
                     f"Error while handling product '{instance.product.title}' "
                     f"in order # {instance.order.id}. Kindly try again later!"
@@ -227,7 +234,7 @@ class OrderAdmin(admin.ModelAdmin):
     ) -> None:
         """Call super or custom method depending on formset model."""
 
-        if formset.model == OrderProductInline.model:
+        if formset.model == OrderedProductInline.model:
             # Mandatory to init formset object related attributes
             formset.new_objects = []
             formset.changed_objects = []
@@ -244,5 +251,3 @@ class OrderAdmin(admin.ModelAdmin):
         )
         obj.total_cost = obj.products_cost + obj.delivery_cost
         super().save_model(request, obj, form, change)
-
-

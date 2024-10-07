@@ -1,7 +1,7 @@
-import json
+"""Module with tasks for Celery."""
 
 from cryptography.fernet import Fernet
-from json import dumps as json_dumps
+from json import dumps as json_dumps, loads as json_loads
 from os import getenv as os_getenv
 from redis import StrictRedis
 from requests import post
@@ -28,12 +28,13 @@ bank_url = "http://{host}:{port}/users/payment".format(
 )
 fernet = Fernet(bytes(os_getenv("PAYMENT_KEY"), os_getenv("ENCODING")))
 
+
 @shared_task(ignore_result=True)
 def conduct_order_payment(order_id: int, payment_details: dict) -> None:
     """Conduct payment for order.
 
     Encrypt card details and sent payment request to bank. Decrypt response
-    data and publish payment details in redis.
+    data and publish payment details in redis channel.
 
     """
     celery_logger.info(f"{order_id=}, {payment_details=}")
@@ -46,7 +47,7 @@ def conduct_order_payment(order_id: int, payment_details: dict) -> None:
         if response.status_code == 200:
             order_status = ORDER_STATUSES["payed"]
         decrypted_data = fernet.decrypt(response.text)
-        details = json.loads(decrypted_data)
+        details = json_loads(decrypted_data)
     except Timeout:
         details = {"msg": f"Bank is not responding!"}
     except Exception as exc:

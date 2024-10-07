@@ -1,3 +1,5 @@
+"""App configuration module."""
+
 from os import getenv as os_getenv
 from threading import Thread
 

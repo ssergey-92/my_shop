@@ -1,3 +1,5 @@
+"""App db model Order Status."""
+
 from django.db import models
 
 
@@ -8,7 +10,7 @@ class OrderStatus(models.Model):
 
     class Meta:
         verbose_name = "Order: status"
-        verbose_name_plural = "Order: statuses"
+        verbose_name_plural = "Orders: statuses"
 
     def __str__(self) -> str:
         """String representation of instance."""

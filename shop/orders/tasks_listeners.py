@@ -1,3 +1,5 @@
+"""Module with tasks listeners from redis channel."""
+
 from json import loads as json_loads
 from traceback import print_exception
 

@@ -1,3 +1,5 @@
+"""App db model Delivery Type for Order."""
+
 from django.db import models
 
 
@@ -15,7 +17,7 @@ class DeliveryType(models.Model):
 
     class Meta:
         verbose_name = "Order: delivery type"
-        verbose_name_plural = "Order: delivery types"
+        verbose_name_plural = "Orders: delivery types"
 
     def __str__(self) -> str:
         """String representation of instance."""

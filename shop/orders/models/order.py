@@ -1,3 +1,5 @@
+"""App db model Order with intermediate table for Product."""
+
 from decimal import Decimal
 from typing import Optional
 

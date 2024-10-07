@@ -1,3 +1,5 @@
+"""Module with common app validators."""
+
 from re import match as re_match
 from typing import Optional
 

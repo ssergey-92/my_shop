@@ -1,3 +1,5 @@
+"""App db model Payment Type for Order."""
+
 from django.db import models
 
 
@@ -8,7 +10,7 @@ class PaymentType(models.Model):
 
     class Meta:
         verbose_name = "Order: payment type"
-        verbose_name_plural = "Order: payment types"
+        verbose_name_plural = "Orders: payment types"
 
     def __str__(self) -> str:
         """String representation of instance."""

@@ -1,3 +1,5 @@
+"""Module with serializers related to Order."""
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -41,7 +43,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
     )
 
     def validate_phone(self, phone: Optional[str]) -> Optional[str]:
-        """Extra validation for 'phone' field."""
+        """Add extra validation for 'phone' field."""
 
         if phone is None:
             return
@@ -54,7 +56,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_fullName(self, full_name: Optional[str]) -> Optional[str]:
-        """Extra validation for 'fullName' field."""
+        """Add extra validation for 'fullName' field."""
 
         if full_name is None:
             return
@@ -67,7 +69,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_paymentType(self, payment_type: str) -> Optional[str]:
-        """Extra validation for 'paymentType' field."""
+        """Add extra validation for 'paymentType' field."""
 
         if not payment_type or (payment_type in allowed_payment_types):
             return payment_type
@@ -80,7 +82,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
         )
 
     def validate_city(self, city: str) -> str:
-        """Extra validation for 'city' field."""
+        """Add extra validation for 'city' field."""
 
         city = city.strip()
         validation_error = validate_city_name(city)
@@ -90,7 +92,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_address(self, address: str) -> str:
-        """Extra validation for 'address' field."""
+        """Add extra validation for 'address' field."""
 
         address = address.strip()
         validation_error = validate_address(address)
@@ -102,7 +104,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
     def validate_deliveryType(
             self, delivery_type: Optional[str],
     ) -> Optional[str]:
-        """Extra validation for 'deliveryType' field."""
+        """Add extra validation for 'deliveryType' field."""
 
         if not delivery_type or (delivery_type in allowed_delivery_types):
             return delivery_type
@@ -141,7 +143,7 @@ class OrderedProductSerializer(serializers.Serializer):
     count = serializers.IntegerField(min_value=1, required=True)
 
     def validate_price(self, value: Decimal):
-        """Extra validation for 'price' field."""
+        """Add extra validation for 'price' field."""
 
         if float(value) > 0:
             return value

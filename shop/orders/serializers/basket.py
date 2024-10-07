@@ -1,3 +1,5 @@
+"""Module with serializers related to Basket."""
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -13,7 +15,7 @@ class BasketAddItemSerializer(serializers.Serializer):
 
 
     def validate(self, data) -> dict:
-        """Extra product id and count validation.
+        """Add extra validation product id and count .
 
         Check that product id is existed and active and remains products >=
         user purchased quantity.
