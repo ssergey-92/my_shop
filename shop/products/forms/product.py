@@ -55,17 +55,21 @@ class ProductForm(forms.ModelForm):
         cleaned_data = super().clean()
         count = self.cleaned_data.get("count")
         received_amount =  self.cleaned_data.get("received_amount")
-        if not "id":
+        if not count or not received_amount:
             return cleaned_data
 
         if count > received_amount:
             raise ValidationError(
                 "Remains amount 'count' can not be more that received amount."
             )
+        if not cleaned_data.get("id"):
+            return cleaned_data
+
         sold_amount = (
             self.instance.orderandproduct_set.
-            aggregate(total_sailed=Sum("total_quantity"))["total_sailed"]
+            aggregate(total_sailed=Sum("total_quantity"))
         )
+        sold_amount = sold_amount["total_sailed"] or 0
         if count > (received_amount - sold_amount):
             raise ValidationError(
                 "Summ of 'count'(remains) and 'sold' products can not be more "
