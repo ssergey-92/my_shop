@@ -45,13 +45,6 @@ unexsist_order_error = "Order with {id} is not exist!"
 class OrderHandler:
     """Class for handling business logic of product order related endpoints."""
 
-    _created_order_status = OrderStatus.objects.get(name="created")
-    _confirmed_order_status = OrderStatus.objects.get(name="confirmed")
-    _ordinary_delivery_type = DeliveryType.objects.get(name="ordinary")
-    _express_delivery_type = DeliveryType.objects.get(name="express")
-    _online_payment_type = PaymentType.objects.get(name="online")
-    _someone_payment_type = PaymentType.objects.get(name="someone")
-
     @classmethod
     def get_order_by_id(cls, order_id: int) -> Response:
         """Handle logic to get active order by id."""
@@ -109,7 +102,7 @@ class OrderHandler:
                     created_by=user,
                     products_cost=order_data["cost"],
                     total_cost=order_data["cost"],
-                    status=cls._created_order_status,
+                    status=OrderStatus.objects.get(name="created"),
                 )
                 cls._reduce_stock_products(
                     stock_products, order_data["products"]
@@ -154,9 +147,9 @@ class OrderHandler:
 
         """
         if not delivery_name or delivery_name == "ordinary":
-            return cls._ordinary_delivery_type
+            return DeliveryType.objects.get(name="ordinary")
 
-        return cls._express_delivery_type
+        return DeliveryType.objects.get(name="express")
 
     @classmethod
     def _get_payment_type(cls, payment_name: Optional[str]) -> PaymentType:
@@ -166,9 +159,9 @@ class OrderHandler:
 
         """
         if not payment_name or payment_name == "online":
-            return cls._online_payment_type
+            return PaymentType.objects.get(name="online")
 
-        return cls._someone_payment_type
+        return PaymentType.objects.get(name="someone")
 
     @classmethod
     def _update_init_order(
@@ -176,7 +169,7 @@ class OrderHandler:
     ) -> None:
         """Update init order(status=created) with data from 'confirm order'."""
 
-        init_order.status = cls._confirmed_order_status
+        init_order.status = OrderStatus.objects.get(name="confirmed")
         init_order.receiver_fullname = confirm_order_data.get("fullname", None)
         init_order.receiver_phone = confirm_order_data.get("phone", None)
         init_order.receiver_email = confirm_order_data["email"]

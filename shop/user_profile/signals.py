@@ -20,7 +20,7 @@ def create_user_profile(
         Profile.objects.create(user=instance, full_name=instance.first_name)
 
 
-@receiver([pre_save, pre_delete],  sender=Avatar)
+@receiver([pre_save, pre_delete], sender=Avatar)
 def delete_category_image_from_sys(
     sender: ModelBase, instance: Avatar, *args, **kwargs,
 ) -> None:
@@ -36,10 +36,13 @@ def delete_category_image_from_sys(
     if not instance.id:
         return
 
+    avatar = Avatar.objects.filter(id=instance.id).first()
+    if not avatar:
+        return
+
     if kwargs.get("signal") == pre_save:
-        image = Avatar.objects.get(id=instance.id)
-        image_path = image.src.path
-        if image.src.path == instance.src.path:
+        image_path = avatar.src.path
+        if avatar.src.path == instance.src.path:
             return
     else:
          image_path = instance.src.path

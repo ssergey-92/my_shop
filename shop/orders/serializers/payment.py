@@ -5,7 +5,7 @@ from datetime import datetime
 from rest_framework import serializers
 
 from common.validators import validate_full_name
-from shop.orders.constants import CARD_NUMBER_LENGTH, CARD_CODE_LENGTH
+from orders.constants import CARD_NUMBER_LENGTH, CARD_CODE_LENGTH
 
 months = [number for number in range(1, 13)]
 current_year_last_digits = datetime.now().year % 2000

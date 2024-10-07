@@ -16,11 +16,6 @@ from orders.tasks import conduct_order_payment
 
 
 class PaymentHandler:
-    _payment_in_progress_status = (
-        OrderStatus.objects.get(name='payment in progress')
-    )
-    _payed_status = OrderStatus.objects.get(name="payed")
-    _rejected_payment_status = OrderStatus.objects.get(name="payment rejected")
 
     @classmethod
     def pay_order(cls, card_details: dict, order_id: int) -> Response:
@@ -40,7 +35,9 @@ class PaymentHandler:
             )
             (
                 Order.objects.filter(id=order_id).
-                update(status=cls._payment_in_progress_status)
+                update(
+                    status=OrderStatus.objects.get(name='payment in progress')
+                )
             )
             conduct_order_payment.delay(order_id, payment_details)
             return Response({"msg": "Processing payment"}, HTTP_200_OK)
@@ -57,9 +54,9 @@ class PaymentHandler:
         try:
             payment_comment = None
             if payment_result['order_status'] == "payed":
-                order_status = cls._payed_status
+                order_status = OrderStatus.objects.get(name="payed")
             else:
-                order_status = cls._rejected_payment_status
+                order_status = OrderStatus.objects.get(name="payment rejected")
                 payment_comment = payment_result["details"].get("msg", None)
             (
                 Order.objects.filter(id=payment_result['order_id']).
