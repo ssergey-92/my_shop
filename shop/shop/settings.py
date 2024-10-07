@@ -1,10 +1,13 @@
-"""Django settings for 'shop' project (Django 5.1)."""
+"""Django settings for 'shop' project."""
 
 from pathlib import Path
-from os import getenv as os_getenv,  makedirs as os_makedirs, path as os_path, environ
+from os import (
+    getenv as os_getenv,
+    makedirs as os_makedirs,
+    path as os_path,
+)
 
-# TODO temp for development, to be removed when project is completed
-if os_getenv("SHOP_DEBUG", "True") == "True":
+if os_getenv("SHOP_DEV_SERVER", "True") == "True":
     from dotenv import load_dotenv
     load_dotenv()
 
@@ -16,7 +19,6 @@ DEBUG = os_getenv("SHOP_DEBUG") == "True"
 
 ALLOWED_HOSTS = os_getenv("SHOP_ALLOWED_HOSTS").split(" ")
 INTERNAL_IPS = []
-# CSRF_TRUSTED_ORIGINS = ['localhost']
 
 
 # Application definition
@@ -27,9 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.messages',
-
     "rest_framework",
-
     "frontend",
     "authorization.apps.AuthorizationConfig",
     "user_profile.apps.UserProfileConfig",
@@ -46,12 +46,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    # "request_logging.middleware.LoggingMiddleware",
 ]
 
 
-if os_getenv("SHOP_TESTING", None) != "True":
+if os_getenv("SHOP_TESTING", None) != "True" and DEBUG:
     INTERNAL_IPS.extend(
         os_getenv("SHOP_INTERNAL_IPS").split(" ")
     )
@@ -79,7 +77,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'shop.wsgi.application'
 
 # Database
-if os_getenv("SHOP_DEBUG") == "True":
+if os_getenv("SHOP_DEV_SERVER") == "True":
     DB_HOST = os_getenv("SHOP_DB_DEV_HOST")
     REDIS_HOST = os_getenv("REDIS_DEV_HOST")
 else:
@@ -105,7 +103,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cashing
 if os_getenv("SHOP_DUMMY_CACHE") == "True":
-    print("DUMMY CACHE ENABLED!!!")
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.dummy.DummyCache",
@@ -169,7 +166,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_ROOT = os_path.join(BASE_DIR, "media")
 MEDIA_URL = "media/"
-if DEBUG is True:
+if os_getenv("SHOP_DEV_SERVER") == "True":
     STATIC_ROOT = os_path.join(BASE_DIR, 'frontend/static/')
 else:
     STATIC_ROOT = os_path.join(BASE_DIR, "static")
@@ -185,7 +182,6 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format":
-                # ">>> %(name)s | %(asctime)s | %(message)s",
                 "%(name)s|%(pathname)s|%(message)s"
         },
         "for_file": {
@@ -201,7 +197,6 @@ LOGGING = {
     "handlers": {
         "console": {
             "level": os_getenv("SHOP_LOGGER_CONSOLE_HANDLER_LEVEL"),
-            # "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
@@ -219,30 +214,33 @@ LOGGING = {
         "level": os_getenv("SHOP_LOGGER_LEVEL"),
         "propagate": False,
     },
-    "loggers": {
-        # "django.db.backends": {  # TODO  db sql request in debug mode only!
-        #     "handlers": ["console", "logfile"],
-        #     "level": "DEBUG",
-        #     "propagate": False,
-        # },
+}
+if DEBUG:
+    LOGGING["loggers"] = {
+        "django.db.backends": {
+            "handlers": ["console", "logfile"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         'django.request': {
-            "handlers": ["console"], # TODO add file handler for production
+            "handlers": ["console", "logfile"],
             "level": os_getenv("SHOP_LOGGER_LEVEL"),
             "propagate": False,
         },
-    },
-}
+    }
+
 
 # Rest framework settings
 REST_FRAMEWORK = {
-    # "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    # "DEFAULT_FILTER_BACKENDS": [
-    #     "django_filters.rest_framework.DjangoFilterBackend"
-    # ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend"
+    ],
     "DEFAULT_PAGINATION_CLASS":
         "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
 
 SUPPORTED_IMAGE_EXTENSIONS = os_getenv("SHOP_SUPPORTED_IMAGE_EXTENSIONS").split(' ')
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os_getenv("SHOP_DATA_UPLOAD_MAX_MEMORY_SIZE"))
