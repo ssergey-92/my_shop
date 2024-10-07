@@ -37,7 +37,7 @@ class Product(models.Model):
         max_length=1000, default="Not prescribed",
     )
     full_description = models.CharField(
-        max_length=1000, default="See short description",
+        max_length=5000, default="See short description",
     )
     rating = models.DecimalField(
         max_digits=2, decimal_places=1, null=True, blank=True,
