@@ -78,8 +78,12 @@ class ProductHandler:
             products_ids = Product.get_products_ids()
             if not products_ids:
                 return Response([], HTTP_200_OK)
+            elif total_banners_products > len(products_ids):
+                maxl_banners_products = len(products_ids)
+            else:
+                maxl_banners_products = total_banners_products
 
-            random_products_ids = sample(products_ids, total_banners_products)
+            random_products_ids = sample(products_ids, maxl_banners_products)
             banners_products_qs = Product.get_banners_products(
                 random_products_ids,
             )
