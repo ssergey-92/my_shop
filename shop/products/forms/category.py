@@ -73,9 +73,14 @@ class CategoryForm(forms.ModelForm):
                 not self.instance.parent or
                 (parent_category.id != self.instance.parent.id)
         ): # Changing parent category
-            validation_error = validate_new_parent_category(
-                self.instance.id, parent_category.id,
-            )
+            if parent_category.id == self.instance.id:
+                raise ValidationError(
+                    "You can not set parent category same as current category!"
+                )
+            else:
+                validation_error = validate_new_parent_category(
+                    self.instance.id, parent_category.id,
+                )
 
         if not validation_error:
             return parent_category

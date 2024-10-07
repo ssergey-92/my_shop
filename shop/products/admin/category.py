@@ -140,7 +140,13 @@ class CategoryAdmin(admin.ModelAdmin):
         """Override method. Filter parent_id to show active only."""
 
         if db_field.name == "parent":
-            kwargs["queryset"] = Category.objects.filter(is_active=True)
+            kwargs["queryset"] = (
+                Category.objects.filter(is_active=True, parent__isnull=True)
+            )
+            category_id = request.resolver_match.kwargs.get("object_id")
+            if category_id:
+                kwargs["queryset"] = kwargs["queryset"].exclude(id=category_id)
+
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
