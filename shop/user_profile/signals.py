@@ -16,12 +16,18 @@ def create_user_profile(
 ) -> None:
     """Create Profile instance for user when received signal User post_save."""
 
+    if kwargs.get('raw', False):
+        app_logger.info(
+            f"\n'create_user_profile' is disabled for loading fixture\n",
+        )
+        return
+
     if created:
         Profile.objects.create(user=instance, full_name=instance.first_name)
 
 
 @receiver([pre_save, pre_delete], sender=Avatar)
-def delete_category_image_from_sys(
+def delete_avatar_image_from_sys(
     sender: ModelBase, instance: Avatar, *args, **kwargs,
 ) -> None:
     """Delete image of Avatar from sys.
@@ -30,6 +36,14 @@ def delete_category_image_from_sys(
     updated or instance is deleted.
 
     """
+
+    if kwargs.get('raw', False):
+        app_logger.info(
+            f"\n'delete_avatar_image_from_sys' is disabled for "
+            f"loading fixture\n"
+        )
+        return
+
     app_logger.info(f"Caught signal {kwargs.get("signal")} for {instance}")
 
     # if new instance is created

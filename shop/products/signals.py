@@ -26,6 +26,14 @@ def delete_category_image_from_sys(
         instance (User): CategoryImage instance
 
     """
+
+    if kwargs.get('raw', False):
+        app_logger.info(
+            f"\n'delete_category_image_from_sys' is disabled for "
+            f"loading fixture\n"
+        )
+        return
+
     app_logger.info(f"Caught signal {kwargs.get("signal")} for {instance}")
     if not instance.id:
         return
@@ -56,6 +64,13 @@ def delete_product_image_from_sys(
         instance (User): ProductImage instance
 
     """
+    if kwargs.get('raw', False):
+        app_logger.info(
+            f"\n'delete_product_image_from_sys' is disabled for "
+            f"loading fixture\n"
+        )
+        return
+
     app_logger.info(f"Caught signal {kwargs.get("signal")} for {instance}")
     if not instance.id:
         return
@@ -83,6 +98,13 @@ def recount_product_rating(
         instance (User): ProductReview instance
 
     """
+
+    if kwargs.get('raw', False):
+        app_logger.info(
+            f"\n'recount_product_rating' is disabled for loading fixture\n"
+        )
+        return
+
     app_logger.info(
         f"Caught signal {kwargs.get("signal")} for {instance.product.id}"
     )
