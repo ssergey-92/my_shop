@@ -40,10 +40,12 @@ class ProductReviewHandler:
         try:
             review_data = ProductReviewSerializer(data=request.data)
             review_data.is_valid(raise_exception=True)
+            ProductReview.objects.create(
+                **review_data.data, product_id=product_id,
+            )
             product = (
                 Product.objects.prefetch_related("reviews").get(pk=product_id)
             )
-            product.add_new_review(review_data.data)
             product_reviews = ProductReviewSerializer(
                 product.reviews, many=True,
             )
@@ -53,7 +55,7 @@ class ProductReviewHandler:
         except IntegrityError:
             return Response({
                 "error": cls._review_duplication_error.format(
-                    email=review_data.data["email"]
+                    email=review_data.data.get("email")
                     ),
                 },
                 HTTP_400_BAD_REQUEST,
