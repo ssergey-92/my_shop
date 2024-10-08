@@ -24,7 +24,7 @@ python manage.py collectstatic --noinput
 
 # Loading fixtures of My_Shop in MySQL DB
 echo "Loading fixtures in DB..."
-python manage.py loaddata ./fixtures/my_shop_data.json
+python manage.py loaddata ./fixtures/my_shop.json
 
 
 # Starting NGINX, GUNICORN and Django app My_Shop
