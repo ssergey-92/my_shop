@@ -11,7 +11,7 @@ city_name_error = (
 )
 address_error = (
     "Address {address} has unsupported format! It should contain only letters, "
-    "digits and space! Min address length is 5 symbols!"
+    "digits, comma, digits and space! Min address length is 5 symbols!"
 )
 
 def validate_city_name(city_name: str) -> Optional[str]:
@@ -29,7 +29,7 @@ def validate_city_name(city_name: str) -> Optional[str]:
 def validate_address(address: str) -> Optional[str]:
     """Check that address has correct format."""
 
-    address_pattern = "^[a-zA-ZА-Яа-я0-9 ]{5,}$"
+    address_pattern = "^[a-zA-ZА-Яа-я0-9,. ]{5,}$"
     if not re_match(address_pattern, address) or address.isspace():
         return address_error.format(address=address, pattern=address_pattern)
 
