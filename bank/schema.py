@@ -19,7 +19,7 @@ class PaymentDetails(BaseModel):
     year: int = Field(ge=current_year_shot)
     code: str
     name: str
-    charge_price: int = Field(ge=0)
+    charge_price: float = Field(ge=0)
 
     @field_validator("number", mode="after")
     @classmethod
