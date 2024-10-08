@@ -83,8 +83,11 @@ class ProductForm(forms.ModelForm):
             return
 
         elif (
-                self.cleaned_data.get("sales_from") >
-                self.cleaned_data.get("sales_to")
+                self.cleaned_data.get("sales_from") and
+                (
+                    self.cleaned_data.get("sales_from") >
+                    self.cleaned_data.get("sales_to")
+                )
         ):
             raise ValidationError(
                 "Sales ending date should be grater than starting date!"
