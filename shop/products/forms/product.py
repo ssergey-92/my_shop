@@ -1,5 +1,5 @@
 """Module with form related to Product"""
-
+from datetime import datetime
 from typing import Optional
 
 from django import forms
@@ -26,6 +26,16 @@ class ProductForm(forms.ModelForm):
         model = Product
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        """Init super method and reset required fields for sales fields. """
+
+        super().__init__(*args, **kwargs)
+
+        self.fields["sales_price"].required = False
+        self.fields["sales_from"].required = False
+        self.fields["sales_to"].required = False
+
+
     def clean_price(self) -> Optional[str]:
         """Add extra validation for 'price' field."""
 
@@ -35,6 +45,51 @@ class ProductForm(forms.ModelForm):
             return price
 
         raise ValidationError(validation_error)
+
+    def clean_sales_price(self) -> Optional[str]:
+        """Add extra validation for 'sales_price' field."""
+        if (
+                self.errors.get("price") or
+                self.errors.get("sales_price") or
+                self.errors.get("is_sales")
+        ):
+            return
+        elif (
+                self.cleaned_data.get("is_sales") and not
+                self.cleaned_data.get("sales_price")
+        ):
+            raise ValidationError(
+                "Sales price is required if sales option is activated!"
+            )
+        elif (
+                self.cleaned_data.get("sales_price") and
+                (
+                        self.cleaned_data.get("sales_price") >=
+                        self.cleaned_data.get("price")
+                )
+        ):
+            raise ValidationError("Sales price should be greater than price!")
+
+        return self.cleaned_data.get("sales_price")
+
+    def clean_sales_to(self) -> Optional[datetime]:
+        """Add extra validation for 'sales_to' field."""
+
+        if (
+                self.errors.get("sales_from") or
+                self.errors.get("sales_to") or not
+                self.cleaned_data.get("sales_to")
+        ):
+            return
+
+        elif (
+                self.cleaned_data.get("sales_from") >
+                self.cleaned_data.get("sales_to")
+        ):
+            raise ValidationError(
+                "Sales ending date should be grater than starting date!"
+            )
+        return self.cleaned_data.get("sales_to")
 
     def clean_sorting_index(self) -> Optional[str]:
         """Add extra validation for 'sorting_index' field."""
@@ -53,17 +108,19 @@ class ProductForm(forms.ModelForm):
         """Add Extra validation for 'count' field."""
 
         cleaned_data = super().clean()
-        count = self.cleaned_data.get("count")
-        received_amount =  self.cleaned_data.get("received_amount")
-        if not count or not received_amount:
+        if (
+                self.errors.get("count") or
+                self.errors.get("received_amount") or not
+                cleaned_data.get("id")
+        ):
             return cleaned_data
 
+        count = self.cleaned_data.get("count")
+        received_amount =  self.cleaned_data.get("received_amount")
         if count > received_amount:
             raise ValidationError(
                 "Remains amount 'count' can not be more that received amount."
             )
-        if not cleaned_data.get("id"):
-            return cleaned_data
 
         sold_amount = (
             self.instance.orderandproduct_set.

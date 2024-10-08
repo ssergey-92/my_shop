@@ -120,7 +120,10 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
         ("DELIVERY", {"fields": ("free_delivery",)}),
-        ("SALES", {"fields": ("is_sales",)}),
+        (
+            "SALES",
+            {"fields": ("is_sales", "sales_from", "sales_to", "sales_price")}
+        ),
     )
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
