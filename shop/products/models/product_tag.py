@@ -16,7 +16,9 @@ class ProductTag(models.Model):
     name = models.CharField(
         unique=True, max_length=150, null=False, blank=False,
     )
-    products = models.ManyToManyField("Product", through="ProductAndTag", related_name="tags")
+    products = models.ManyToManyField(
+        "Product", through="ProductAndTag", related_name="tags",
+    )
 
     class Meta:
         verbose_name = "Product: tag"

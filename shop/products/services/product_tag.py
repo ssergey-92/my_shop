@@ -24,7 +24,7 @@ class ProductTagHandler:
     """Class for handling business logic of product tags related endpoints."""
 
     @staticmethod
-    def get_tags_for_category_response(category_id: dict) -> Response:
+    def get_tags_for_category_response(category_details: dict) -> Response:
         """Get Product tags related to category.
 
         Validate category and take tags which belongs to category and
@@ -32,14 +32,12 @@ class ProductTagHandler:
 
         """
         try:
-            category_id = InCategoryIdSerializer(data=category_id)
-            category_id.is_valid(raise_exception=True)
-            if category_id.data["id"]:
-                tags = Category.get_category_related_tags(
-                    category_id.data["id"],
-                )
-            else:
+            if not category_details or not category_details.get("category"):
                 tags = ProductTag.objects.all()
+            else:
+                category = InCategoryIdSerializer(data=category_details)
+                category.is_valid(raise_exception=True)
+                tags = Category.get_category_related_tags(category.data["id"])
             return Response(
                 ProductTagSerializer(tags, many=True).data, HTTP_200_OK,
             )
