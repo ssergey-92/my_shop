@@ -97,6 +97,8 @@ class ProductHandler:
 
     @classmethod
     def get_sales_products_response(cls, query_params: dict) -> Response:
+        """Get sales products response."""
+
         try:
             response_data = cache.get(query_params)
             app_logger.debug(f"GET CACHE {query_params=} {response_data=}")
@@ -145,6 +147,7 @@ class ProductHandler:
             current_page: int, limit: int = DEFAULT_PAGINATION_LIMIT,
     ) -> dict:
         """Get sales Products data."""
+
         sales_products_qs = Product.get_sales_products()
         sales_products_qs = apply_pagination_to_qs(
             sales_products_qs, current_page, limit,

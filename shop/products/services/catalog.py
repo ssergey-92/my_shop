@@ -4,8 +4,10 @@ from traceback import format_exc as tb_format_exc
 from typing import Optional
 
 from django.core.cache import cache
-from django.db.models import QuerySet, Q, Count, Sum
+from django.db import models
+from django.db.models import Case, Count, F, Sum, QuerySet, Q,  When
 from django.http import QueryDict
+from django.utils.timezone import now
 
 from rest_framework.status import (
     HTTP_200_OK,
@@ -13,7 +15,6 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
 from rest_framework.exceptions import ValidationError
-from rest_framework.request import Request
 from rest_framework.response import Response
 
 from .common import apply_pagination_to_qs, get_pagination_last_page
@@ -120,13 +121,35 @@ class CatalogHandler:
             return query_set
 
         if sort.endswith("total_reviews"):
-            query_set = query_set.annotate(total_reviews=Count("reviews__id"))
-        elif sort.endswith("total_sailed"):
-            query_set = query_set.annotate(
-                total_sailed=Sum("orderandproduct__total_quantity")
+            query_set = (
+                query_set.annotate(total_reviews=Count("reviews__id")).
+                order_by(sort)
             )
+        elif sort.endswith("total_sailed"):
+            query_set = (
+                query_set.annotate(
+                    total_sailed=Sum("orderandproduct__total_quantity")
+                ).order_by(sort)
+            )
+        elif sort.endswith("price"):
+            sort = sort.replace("price", "final_price")
+            query_set = (
+                query_set.annotate(final_price=Case(
+                    When(
+                        Q(is_sales=True) &
+                        Q(sales_price__isnull=False) &
+                        (Q(sales_from__lte=now()) | Q(sales_from__isnull=True)) &
+                        (Q(sales_to__gte=now()) | Q(sales_to__isnull=True)),
+                        then=F("sales_price")
+                    ),
+                    default=F("price"),
+                    output_field=models.DecimalField()
+                    )
+                ).order_by(sort)
+            )
+        else:
+            query_set = query_set.order_by(sort)
 
-        query_set = query_set.order_by(sort)
         return query_set
 
     @classmethod
