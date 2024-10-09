@@ -1,7 +1,7 @@
 <h1 align="center">My_Shop (Megano)</h1>
 <p float="left"  align="center">
-  <img alt="My_Shop site screenshot" style="height:600px;width:500px;" src="./shop/My_Shop_(Megano).png"/>
-  <img alt="My_Shop admin screenshot" style="height:600px;width:550px;" src="./shop/Admin_Panel_My_Shop.png"/>
+  <img alt="My_Shop site screenshot" style="height:525px;width:425px;" src="./shop/My_Shop_(Megano).png"/>
+  <img alt="My_Shop admin screenshot" style="height:525px;width:475px;" src="./shop/Admin_Panel_My_Shop.png"/>
 </p>
 
 
