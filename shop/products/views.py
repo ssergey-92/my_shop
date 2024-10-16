@@ -16,7 +16,6 @@ from .services import (
 
 class CatalogView(APIView):
 
-
     def get(self, request: Request) -> Response:
         """Get Category and subcategories products as per query params."""
 
@@ -33,7 +32,7 @@ class CategoryView(APIView):
 class ProductView(APIView):
 
     def get(self, request: Request, id: int) -> Response:
-        """Get Product details as per Product.id. """
+        """Get Product details as per Product.id."""
 
         return ProductHandler.get_product_by_id_response(id)
 

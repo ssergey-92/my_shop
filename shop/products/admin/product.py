@@ -109,7 +109,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "full_description",
                     "created_date",
                 )
-            }
+            },
         ),
         ("QUALITY", {"fields": ("rating", "sorting_index", "is_limited")}),
         (
@@ -122,7 +122,7 @@ class ProductAdmin(admin.ModelAdmin):
         ("DELIVERY", {"fields": ("free_delivery",)}),
         (
             "SALES",
-            {"fields": ("is_sales", "sales_from", "sales_to", "sales_price")}
+            {"fields": ("is_sales", "sales_from", "sales_to", "sales_price")},
         ),
     )
 
@@ -153,10 +153,11 @@ class ProductAdmin(admin.ModelAdmin):
         obj.save()
 
     def save_model(
-            self, request:HttpRequest,
-            obj: Product,
-            form: ProductForm ,
-            change: bool,
+        self,
+        request: HttpRequest,
+        obj: Product,
+        form: ProductForm,
+        change: bool,
     ):
         """Add extra logic for saving new instance.
 

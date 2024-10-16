@@ -9,7 +9,7 @@ from .services import (
     min_review_rate,
     max_review_rate,
     min_sorting_index,
-    max_sorting_index ,
+    max_sorting_index,
 )
 
 
@@ -44,7 +44,7 @@ def validate_product_price(price: int) -> Optional[str]:
 def validate_product_review_rate(review_rate: int) -> Optional[str]:
     """Extra validation of ProductReview.rate."""
 
-    if  (max_review_rate < review_rate) or (review_rate <  min_review_rate):
+    if (max_review_rate < review_rate) or (review_rate < min_review_rate):
         return review_rate_error
 
 

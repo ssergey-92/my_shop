@@ -12,8 +12,8 @@ from orders.validators import validate_address, validate_city_name
 from products.serializers import OutSpecialProductSerializer
 
 
-allowed_payment_types = PaymentType.objects.values_list('name', flat=True)
-allowed_delivery_types = DeliveryType.objects.values_list('name', flat=True)
+allowed_payment_types = PaymentType.objects.values_list("name", flat=True)
+allowed_delivery_types = DeliveryType.objects.values_list("name", flat=True)
 payment_type_error = (
     "Payment: {payment_type} is denied! "
     "\nAllowed types: {allowed_payment_types}"
@@ -102,7 +102,7 @@ class OrderConfirmationSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_deliveryType(
-            self, delivery_type: Optional[str],
+        self, delivery_type: Optional[str],
     ) -> Optional[str]:
         """Add extra validation for 'deliveryType' field."""
 
@@ -155,7 +155,7 @@ class OrderedProductSerializer(serializers.Serializer):
 
         return {
             "product_id": instance["id"],
-            "total_price": instance["price"]  * instance["count"],
+            "total_price": instance["price"] * instance["count"],
             "total_quantity": instance["count"],
         }
 
@@ -193,7 +193,7 @@ class OutOrderSerializer(serializers.ModelSerializer):
     def get_createdAt(self, obj: Order) -> datetime:
         """Get order created time."""
 
-        return obj.created_at.strftime('%d %b %Y %H:%M')
+        return obj.created_at.strftime("%d %b %Y %H:%M")
 
     def get_fullName(self, obj: Order) -> Optional[str]:
         """Get receiver full name."""
@@ -224,7 +224,7 @@ class OutOrderSerializer(serializers.ModelSerializer):
     def get_paymentType(self, obj: Order) -> Optional[str]:
         """Get order payment type name."""
 
-        return obj.payment_type.name if obj.payment_type else  None
+        return obj.payment_type.name if obj.payment_type else None
 
     def get_totalCost(self, obj: Order) -> Decimal:
         """Get total cost of order."""

@@ -9,6 +9,7 @@ from django.db.models import QuerySet, Q, Sum
 from .product_review import ProductReview
 from common.custom_logger import app_logger
 
+
 class Product(models.Model):
     title = models.CharField(
         max_length=150,
@@ -66,7 +67,6 @@ class Product(models.Model):
         product_review.save()
         self.reviews.add(product_review)
         self.save()
-
 
     def count_final_price(self) -> Decimal:
         """Get product price bases sales if available.
@@ -169,8 +169,8 @@ class Product(models.Model):
             cls.objects.
             select_for_update().
             filter(is_active=True, count__gt=0, id__in=products_ids)
-
         )
+
     @classmethod
     def filter_available(cls) -> QuerySet:
         """Filter available products.
@@ -179,7 +179,6 @@ class Product(models.Model):
 
         """
         return cls.objects.filter(is_active=True, count__gt=0)
-
 
     @classmethod
     def get_by_id_with_prefetch(cls, id: int) -> QuerySet:

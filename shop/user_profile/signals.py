@@ -16,7 +16,7 @@ def create_user_profile(
 ) -> None:
     """Create Profile instance for user when received signal User post_save."""
 
-    if kwargs.get('raw', False):
+    if kwargs.get("raw", False):
         app_logger.info(
             f"\n'create_user_profile' is disabled for loading fixture\n",
         )
@@ -37,7 +37,7 @@ def delete_avatar_image_from_sys(
 
     """
 
-    if kwargs.get('raw', False):
+    if kwargs.get("raw", False):
         app_logger.info(
             f"\n'delete_avatar_image_from_sys' is disabled for "
             f"loading fixture\n"
@@ -59,7 +59,7 @@ def delete_avatar_image_from_sys(
         if avatar.src.path == instance.src.path:
             return
     else:
-         image_path = instance.src.path
+        image_path = instance.src.path
 
     app_logger.info(f"Deleting old image for {instance}")
     delete_file_from_sys(image_path)

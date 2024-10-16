@@ -9,6 +9,7 @@ from os import (
 
 if os_getenv("SHOP_DEV_SERVER", "True") == "True":
     from dotenv import load_dotenv
+
     load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +24,12 @@ INTERNAL_IPS = []
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.staticfiles',
-    'django.contrib.sessions',
-    'django.contrib.messages',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.staticfiles",
+    "django.contrib.sessions",
+    "django.contrib.messages",
     "rest_framework",
     "frontend",
     "authorization.apps.AuthorizationConfig",
@@ -39,42 +40,40 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 
 if os_getenv("SHOP_TESTING", None) != "True" and DEBUG:
-    INTERNAL_IPS.extend(
-        os_getenv("SHOP_INTERNAL_IPS").split(" ")
-    )
+    INTERNAL_IPS.extend(os_getenv("SHOP_INTERNAL_IPS").split(" "))
     INSTALLED_APPS.append("debug_toolbar")
     MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
-ROOT_URLCONF = 'shop.urls'
+ROOT_URLCONF = "shop.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'shop.wsgi.application'
+WSGI_APPLICATION = "shop.wsgi.application"
 
 # Database
 if os_getenv("SHOP_DEV_SERVER") == "True":
@@ -93,13 +92,13 @@ DATABASES = {
         "HOST": DB_HOST,
         "PORT": os_getenv("MYSQL_PORT"),
         "OPTIONS": {
-            "charset":  os_getenv("SHOP_DB_CHARSET"),
+            "charset": os_getenv("SHOP_DB_CHARSET"),
         },
     }
 }
 
 # Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Cashing
 if os_getenv("SHOP_DUMMY_CACHE") == "True":
@@ -120,8 +119,8 @@ else:
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "CONNECTION_TIMEOUT": int(os_getenv("REDIS_TIMEOUT")),
-            "TIMEOUT": int(os_getenv("REDIS_CASH_EXPIRY")),
-            }
+                "TIMEOUT": int(os_getenv("REDIS_CASH_EXPIRY")),
+            },
         }
     }
 
@@ -155,19 +154,19 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images) and Media files
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 MEDIA_ROOT = os_path.join(BASE_DIR, "media")
 MEDIA_URL = "media/"
 if os_getenv("SHOP_DEV_SERVER") == "True":
-    STATIC_ROOT = os_path.join(BASE_DIR, 'frontend/static/')
+    STATIC_ROOT = os_path.join(BASE_DIR, "frontend/static/")
 else:
     STATIC_ROOT = os_path.join(BASE_DIR, "static")
 
@@ -180,13 +179,9 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format":
-                "%(name)s|%(pathname)s|%(message)s"
-        },
+        "verbose": {"format": "%(name)s|%(pathname)s|%(message)s"},
         "for_file": {
-            "format":
-                "%(levelname)s|%(asctime)s|%(name)s|%(pathname)s|%(message)s",
+            "format": "%(levelname)s|%(asctime)s|%(name)s|%(pathname)s|%(message)s",
         },
     },
     "filters": {
@@ -222,7 +217,7 @@ if DEBUG:
             "level": "DEBUG",
             "propagate": False,
         },
-        'django.request': {
+        "django.request": {
             "handlers": ["console", "logfile"],
             "level": os_getenv("SHOP_LOGGER_LEVEL"),
             "propagate": False,
@@ -236,11 +231,14 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend"
     ],
-    "DEFAULT_PAGINATION_CLASS":
-        "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
 
 
-SUPPORTED_IMAGE_EXTENSIONS = os_getenv("SHOP_SUPPORTED_IMAGE_EXTENSIONS").split(' ')
-DATA_UPLOAD_MAX_MEMORY_SIZE = int(os_getenv("SHOP_DATA_UPLOAD_MAX_MEMORY_SIZE"))
+SUPPORTED_IMAGE_EXTENSIONS = os_getenv(
+    "SHOP_SUPPORTED_IMAGE_EXTENSIONS"
+).split(" ")
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(
+    os_getenv("SHOP_DATA_UPLOAD_MAX_MEMORY_SIZE")
+)

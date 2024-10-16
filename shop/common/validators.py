@@ -16,6 +16,11 @@ image_unsupported_error = (
     f"{settings.SUPPORTED_IMAGE_EXTENSIONS}"
 )
 image_extension_error = f"Image name should contain extension!"
+invalid_phone_number_error = "Invalid phone number format! ex. +79876543210"
+full_name_error = (
+    "Full name should contain only letters and space! "
+    "Min word len is 2 letters!"
+)
 
 
 def validate_image_src(
@@ -46,12 +51,6 @@ def validate_image_src(
         return image_extension_error
 
     app_logger.debug(f"{image.name} has supported format and size")
-
-invalid_phone_number_error = "Invalid phone number format! ex. +79876543210"
-full_name_error = (
-    "Full name should contain only letters and space! "
-    "Min word len is 2 letters!"
-)
 
 
 def validate_full_name(full_name: str) -> Optional[str]:

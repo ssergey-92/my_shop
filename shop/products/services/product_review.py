@@ -26,7 +26,7 @@ class ProductReviewHandler:
     """Class to handle logic of product review related endpoints."""
 
     _review_duplication_error = (
-            "User with email '{email}' has already published the review!"
+        "User with email '{email}' has already published the review!"
     )
 
     @classmethod

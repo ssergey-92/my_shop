@@ -21,7 +21,6 @@ class DeliveryTypeAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "DETAILS",
-            {"fields": ("id", "name", "price", "free_delivery_order_price")}
+            {"fields": ("id", "name", "price", "free_delivery_order_price")},
         ),
     )
-

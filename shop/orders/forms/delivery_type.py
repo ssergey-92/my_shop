@@ -5,15 +5,16 @@ from django import forms
 
 from orders.models import DeliveryType
 
+
 class DeliveryTypeForm(forms.ModelForm):
     """Class DeliveryTypeForm. Custom form for django admin panel.
 
-     Class is used for DeliveryType (admin.ModelAdmin).
+    Class is used for DeliveryType (admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = DeliveryType
-        fields = '__all__'
+        fields = "__all__"
 
     def clean_price(self) -> Optional[Decimal]:
         """Add extra validation for 'price' field.

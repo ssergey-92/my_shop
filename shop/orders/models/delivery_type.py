@@ -14,7 +14,6 @@ class DeliveryType(models.Model):
         max_digits=10, decimal_places=2, null=True, blank=True,
     )
 
-
     class Meta:
         verbose_name = "Order: delivery type"
         verbose_name_plural = "Orders: delivery types"

@@ -1,12 +1,11 @@
 from orders.models import DeliveryType, Order
 
+
 class DeliveryService:
     """Class for handling business logic related to order delivery."""
 
     @staticmethod
-    def count_cost(
-            products_cost: int, delivery_type: DeliveryType
-    ) -> int:
+    def count_cost(products_cost: int, delivery_type: DeliveryType) -> int:
         """Count delivery cost for new Order instance."""
 
         if (

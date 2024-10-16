@@ -27,7 +27,7 @@ sql_get_active_root_category = """
     FROM RootCategory AS rc
     WHERE parent_id is NULL;
 """
-sql_get_active_nesting_level ="""
+sql_get_active_nesting_level = """
     WITH RECURSIVE NestingLevel AS (
     SELECT id, parent_id, is_active, 0 AS depth
     FROM products_category AS pc
@@ -43,7 +43,7 @@ sql_get_active_nesting_level ="""
     SELECT MAX(depth)
     FROM NestingLevel;
 """
-sql_get_subcategories_max_nesting_level ="""
+sql_get_subcategories_max_nesting_level = """
     WITH RECURSIVE NestingLevel AS (
     SELECT id, parent_id, is_active, 0 AS depth
     FROM products_category AS pc
@@ -68,7 +68,7 @@ class Category(models.Model):
         null=False,
         blank=False,
     )
-    parent= models.ForeignKey(
+    parent = models.ForeignKey(
         to="Category",
         to_field="id",
         related_name="subcategories",
@@ -97,7 +97,7 @@ class Category(models.Model):
 
     @staticmethod
     def get_nesting_level(category_id: int) -> int:
-        """Get category nesting level (root category nesting level = 0). """
+        """Get category nesting level (root category nesting level = 0)."""
 
         with connection.cursor() as cursor:
             cursor.execute(sql_get_active_nesting_level, [category_id])
@@ -113,12 +113,12 @@ class Category(models.Model):
         """
         with connection.cursor() as cursor:
             cursor.execute(
-                sql_get_subcategories_max_nesting_level, [category_id],
+                sql_get_subcategories_max_nesting_level,
+                [category_id],
             )
             max_sub_nesting = cursor.fetchone()
             app_logger.debug(f"{category_id=} {max_sub_nesting=}")
         return max_sub_nesting[0] if max_sub_nesting else 0
-
 
     def get_root_category_id(self) -> Optional[int]:
         """Get root category id."""

@@ -13,6 +13,7 @@ from .serializers import SignInSerializer, SignUpSerializer
 from common.custom_logger import app_logger
 from common.utils import server_error
 
+
 class HandleAuthorization:
     """Class for authorization related endpoints"""
 
@@ -100,7 +101,10 @@ class HandleAuthorization:
             login(request, user)
             return Response(cls._successful_sign_up, cls._http_success)
         except (
-                ValidationError, TypeError, JSONDecodeError, IntegrityError
+            ValidationError,
+            TypeError,
+            JSONDecodeError,
+            IntegrityError,
         ) as exc:
             app_logger.debug(tb_format_exc())
             return Response({"error": str(exc)}, cls._http_unsuccess)

@@ -8,4 +8,3 @@ from .product_specification import (
     ProductSpecification,
 )
 from .product_tag import ProductAndTag, ProductTag
-

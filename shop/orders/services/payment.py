@@ -36,7 +36,7 @@ class PaymentHandler:
             (
                 Order.objects.filter(id=order_id).
                 update(
-                    status=OrderStatus.objects.get(name='payment in progress')
+                    status=OrderStatus.objects.get(name="payment in progress")
                 )
             )
             conduct_order_payment.delay(order_id, payment_details)
@@ -53,13 +53,13 @@ class PaymentHandler:
 
         try:
             payment_comment = None
-            if payment_result['order_status'] == "payed":
+            if payment_result["order_status"] == "payed":
                 order_status = OrderStatus.objects.get(name="payed")
             else:
                 order_status = OrderStatus.objects.get(name="payment rejected")
                 payment_comment = payment_result["details"].get("msg", None)
             (
-                Order.objects.filter(id=payment_result['order_id']).
+                Order.objects.filter(id=payment_result["order_id"]).
                 update(status=order_status, payment_comment=payment_comment)
             )
         except Exception:

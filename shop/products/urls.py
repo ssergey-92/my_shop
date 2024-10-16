@@ -41,7 +41,8 @@ urlpatterns = [
     path(
         "products/popular",
         ProductPopularView.as_view(),
-        name="products_popular"),
+        name="products_popular",
+    ),
     path(
         "products/limited",
         ProductLimitedView.as_view(),
@@ -57,9 +58,5 @@ urlpatterns = [
         ProductBannerView.as_view(),
         name="products_banners",
     ),
-    path(
-        "tags",
-        TagView.as_view(),
-        name="products_tags"
-    ),
+    path("tags", TagView.as_view(), name="products_tags"),
 ]

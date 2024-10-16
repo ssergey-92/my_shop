@@ -4,6 +4,7 @@ from django.db import models
 
 unavailable_image = "Image is currently unavailable!"
 
+
 def get_product_image_saving_path(
         instance: "ProductImage", filename: str,
 ) -> str:
@@ -26,7 +27,7 @@ class ProductImage(models.Model):
         max_length=150,
         blank=False,
         null=False,
-        )
+    )
     product = models.ForeignKey(
         to="Product",
         to_field="id",

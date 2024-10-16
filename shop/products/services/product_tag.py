@@ -14,7 +14,7 @@ from .category import category_unexist_error
 from common.custom_logger import app_logger
 from common.utils import server_error
 from products.models import Category, ProductTag
-from products.serializers import  (
+from products.serializers import (
     InCategoryIdSerializer,
     ProductTagSerializer,
 )

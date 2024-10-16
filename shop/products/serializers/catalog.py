@@ -67,8 +67,9 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
 
         app_logger.debug(f"{instance=}")
         return {
-            "category_id":(
-                instance.get("category") if instance.get("category") != 0
+            "category_id": (
+                instance.get("category")
+                if instance.get("category") != 0
                 else None
             ),
             "filters": self._get_filter_items(instance),
@@ -101,7 +102,7 @@ class CatalogQueryParamsSerializer(serializers.Serializer):
             filter_items["free_delivery"] = instance["freeDelivery"]
 
         if instance.get("minPrice") is not None:
-            filter_items["price__gte"] =  instance["minPrice"]
+            filter_items["price__gte"] = instance["minPrice"]
 
         if instance.get("maxPrice") is not None:
             filter_items["price__lte"] = instance["maxPrice"]

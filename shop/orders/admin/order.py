@@ -1,6 +1,6 @@
 """Admin model for order."""
 
-from  traceback import format_exc as tb_format_exc
+from traceback import format_exc as tb_format_exc
 from typing import Any
 
 from django.contrib import admin, messages
@@ -37,10 +37,10 @@ class OrderedProductInline(admin.StackedInline):
     extra = 1
 
     def formfield_for_foreignkey(
-            self,
-            db_field: {FileField.formfield},
-            request: HttpRequest,
-            **kwargs,
+        self,
+        db_field: {FileField.formfield},
+        request: HttpRequest,
+        **kwargs,
     ) -> Any:
         """Override method for product field else return super method.
 
@@ -60,13 +60,12 @@ class OrderedProductInline(admin.StackedInline):
                     Product.objects.filter(
                         Q(id__in=products_ids) |
                         (Q(is_active=True) & Q(count__gte=1))
-                        )
+                    )
                 )
             else:
                 kwargs["queryset"] = Product.filter_available()
 
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 
 @admin.register(Order)
@@ -119,7 +118,7 @@ class OrderAdmin(admin.ModelAdmin):
     display_status.admin_order_field = "display_status"
 
     def display_total_cost(self, obj: Order) -> str:
-        """Override default field total cost for custom field naming. """
+        """Override default field total cost for custom field naming."""
 
         return obj.total_cost
 
@@ -133,7 +132,7 @@ class OrderAdmin(admin.ModelAdmin):
         obj.save()
 
     def delete_queryset(
-            self, request: HttpRequest, queryset: QuerySet,
+        self, request: HttpRequest, queryset: QuerySet,
     ) -> None:
         """Override method. Instances are archived instead of deletion."""
 
@@ -165,7 +164,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     @staticmethod
     def _crud_ordered_product_inline_form(
-            form: OrderedProductInlineForm, formset,
+        form: OrderedProductInlineForm, formset,
     ) -> None:
         """Handle CRUD for form instance and update formset attributes."""
 
@@ -185,7 +184,7 @@ class OrderAdmin(admin.ModelAdmin):
             )
 
     def _save_ordered_product_inline_formset(
-            self, request: HttpRequest, form, formset,
+        self, request: HttpRequest, form, formset,
     ) -> None:
         """Handle CRUD for form 'OrderedProductInlineForm' from formset.
 
@@ -230,7 +229,7 @@ class OrderAdmin(admin.ModelAdmin):
             )
 
     def save_formset(
-            self, request: HttpRequest, form, formset, change: bool,
+        self, request: HttpRequest, form, formset, change: bool,
     ) -> None:
         """Call super or custom method depending on formset model."""
 

@@ -15,7 +15,6 @@ class ProductAndSpecification(models.Model):
         unique_together = (("product", "specification"),)
 
 
-
 class ProductSpecification(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     value = models.CharField(max_length=150, null=False, blank=False)
@@ -23,7 +22,7 @@ class ProductSpecification(models.Model):
         "Product",
         through="ProductAndSpecification",
         related_name="specifications",
-        )
+    )
 
     class Meta:
         verbose_name = "Product: specification"

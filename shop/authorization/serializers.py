@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from common.validators import validate_full_name
 
+
 class SignInSerializer(serializers.Serializer):
     """Class for validating user sign in details."""
 

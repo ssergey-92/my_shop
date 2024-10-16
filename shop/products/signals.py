@@ -3,7 +3,12 @@
 from django.db.models import Count, Sum, FloatField
 from django.db.models.base import ModelBase
 from django.db.models.functions import Cast
-from django.db.models.signals import pre_save, post_save, pre_delete, post_delete
+from django.db.models.signals import (
+    pre_save,
+    post_save,
+    pre_delete,
+    post_delete,
+)
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 
@@ -12,7 +17,7 @@ from common.custom_logger import app_logger
 from common.utils import delete_file_from_sys
 
 
-@receiver([pre_save, pre_delete],  sender=CategoryImage)
+@receiver([pre_save, pre_delete], sender=CategoryImage)
 def delete_category_image_from_sys(
     sender: ModelBase, instance: CategoryImage, *args, **kwargs,
 ) -> None:
@@ -27,7 +32,7 @@ def delete_category_image_from_sys(
 
     """
 
-    if kwargs.get('raw', False):
+    if kwargs.get("raw", False):
         app_logger.info(
             f"\n'delete_category_image_from_sys' is disabled for "
             f"loading fixture\n"
@@ -44,15 +49,15 @@ def delete_category_image_from_sys(
         if image.src.path == instance.src.path:
             return
     else:
-         image_path = instance.src.path
+        image_path = instance.src.path
 
     app_logger.info(f"Deleting old image for {instance}")
     delete_file_from_sys(image_path)
 
 
-@receiver([pre_save, pre_delete],  sender=ProductImage)
+@receiver([pre_save, pre_delete], sender=ProductImage)
 def delete_product_image_from_sys(
-        sender: ModelBase, instance: CategoryImage, *args, **kwargs,
+    sender: ModelBase, instance: CategoryImage, *args, **kwargs,
 ) -> None:
     """Delete image of product from sys.
 
@@ -64,7 +69,7 @@ def delete_product_image_from_sys(
         instance (User): ProductImage instance
 
     """
-    if kwargs.get('raw', False):
+    if kwargs.get("raw", False):
         app_logger.info(
             f"\n'delete_product_image_from_sys' is disabled for "
             f"loading fixture\n"
@@ -81,13 +86,13 @@ def delete_product_image_from_sys(
         if image.src.path == instance.src.path:
             return
     else:
-         image_path = instance.src.path
+        image_path = instance.src.path
 
     app_logger.info(f"Deleting old image for {instance}")
     delete_file_from_sys(image_path)
 
 
-@receiver([post_save, post_delete],  sender=ProductReview)
+@receiver([post_save, post_delete], sender=ProductReview)
 def recount_product_rating(
     sender: ModelBase, instance: ProductReview, *args, **kwargs,
 ) -> None:
@@ -99,7 +104,7 @@ def recount_product_rating(
 
     """
 
-    if kwargs.get('raw', False):
+    if kwargs.get("raw", False):
         app_logger.info(
             f"\n'recount_product_rating' is disabled for loading fixture\n"
         )

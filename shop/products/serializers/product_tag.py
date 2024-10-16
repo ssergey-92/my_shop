@@ -15,12 +15,7 @@ class ProductTagSerializer(serializers.ModelSerializer):
 
 class SpecificProductTagSerializer(serializers.ModelSerializer):
     """ProductTag specific serializer."""
-    # name = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductTag
-        fields = ("name", )
-
-    # deviated from swagger file !!!
-    # def get_name(self, obj: ProductTag) -> int:
-    #     return obj.id
+        fields = ("name",)

@@ -1,6 +1,5 @@
 """App db model ProductTag with intermediate table."""
 
-
 from django.db import models
 
 

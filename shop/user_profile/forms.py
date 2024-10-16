@@ -13,6 +13,7 @@ from common.validators import (
     validate_phone_number,
 )
 
+
 class ProfileForm(forms.ModelForm):
     """Custom Profile Form for django admin panel."""
 

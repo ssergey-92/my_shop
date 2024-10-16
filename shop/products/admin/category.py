@@ -27,6 +27,7 @@ class SubcategoryInline(admin.StackedInline):
     Class is design to use as inlines for 'Category' model admin.
 
     """
+
     model = Category
     form = CategoryInlineForm
     verbose_name = "subcategories"
@@ -101,7 +102,7 @@ class CategoryAdmin(admin.ModelAdmin):
         "get_parent_category",
         "get_nesting_depth",
         "get_subcategories",
-        "get_category_image"
+        "get_category_image",
     )
     list_display_links = ("id", "title")
     list_filter = ("is_active",)
@@ -114,7 +115,7 @@ class CategoryAdmin(admin.ModelAdmin):
             {"fields":
                  ("id", "title", "parent", "get_category_image", "image")
             },
-         ),
+        ),
         (
             "EXTRA",
             {"fields":
@@ -181,7 +182,6 @@ class CategoryAdmin(admin.ModelAdmin):
         return Category.get_nesting_level(obj.id)
 
     get_nesting_depth.short_description = "Nesting level"
-
 
     def get_root_category(self, obj: Category) -> Optional[str]:
         """Get root category."""

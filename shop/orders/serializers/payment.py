@@ -19,7 +19,6 @@ month_error = f"Month should be in range {months}!"
 year_error = f"Year should be greater or equal {current_year_last_digits}!"
 
 
-
 class PaymentCardSerializer(serializers.Serializer):
     """Class is used for validation card details."""
 
@@ -38,7 +37,7 @@ class PaymentCardSerializer(serializers.Serializer):
         raise serializers.ValidationError(card_number_length_error)
 
     def validate_name(self, name: str) -> str:
-        """Add extra Validation of field 'name'. """
+        """Add extra Validation of field 'name'."""
 
         validation_error = validate_full_name(name)
         if not validation_error:
@@ -47,7 +46,7 @@ class PaymentCardSerializer(serializers.Serializer):
         raise serializers.ValidationError(validation_error)
 
     def validate_month(self, month: int) -> int:
-        """Add extra Validation of field 'month'. """
+        """Add extra Validation of field 'month'."""
 
         if month in months:
             return month
@@ -55,7 +54,7 @@ class PaymentCardSerializer(serializers.Serializer):
         raise serializers.ValidationError(month_error)
 
     def validate_year(self, year: int) -> int:
-        """Add extra Validation of field 'year'. """
+        """Add extra Validation of field 'year'."""
 
         if year >= current_year_last_digits:
             return year
@@ -67,7 +66,7 @@ class PaymentCardSerializer(serializers.Serializer):
         raise serializers.ValidationError(year_error)
 
     def validate_code(self, code: str) -> str:
-        """Add extra Validation of field 'year'. """
+        """Add extra Validation of field 'year'."""
 
         if code.isdigit() and (len(str(code)) == CARD_CODE_LENGTH):
             return code

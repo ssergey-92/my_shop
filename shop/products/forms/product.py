@@ -1,4 +1,5 @@
 """Module with form related to Product"""
+
 from datetime import datetime
 from typing import Optional
 
@@ -19,22 +20,21 @@ from products.validators import (
 class ProductForm(forms.ModelForm):
     """Class ProductForm. Custom form for django admin panel.
 
-     Class is used for Product (admin.ModelAdmin).
+    Class is used for Product (admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = Product
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
-        """Init super method and reset required fields for sales fields. """
+        """Init super method and reset required fields for sales fields."""
 
         super().__init__(*args, **kwargs)
 
         self.fields["sales_price"].required = False
         self.fields["sales_from"].required = False
         self.fields["sales_to"].required = False
-
 
     def clean_price(self) -> Optional[str]:
         """Add extra validation for 'price' field."""
@@ -64,8 +64,8 @@ class ProductForm(forms.ModelForm):
         elif (
                 self.cleaned_data.get("sales_price") and
                 (
-                        self.cleaned_data.get("sales_price") >=
-                        self.cleaned_data.get("price")
+                    self.cleaned_data.get("sales_price") >=
+                    self.cleaned_data.get("price")
                 )
         ):
             raise ValidationError("Sales price should be greater than price!")
@@ -119,7 +119,7 @@ class ProductForm(forms.ModelForm):
             return cleaned_data
 
         count = self.cleaned_data.get("count")
-        received_amount =  self.cleaned_data.get("received_amount")
+        received_amount = self.cleaned_data.get("received_amount")
         if count > received_amount:
             raise ValidationError(
                 "Remains amount 'count' can not be more that received amount."
@@ -142,9 +142,9 @@ class ProductForm(forms.ModelForm):
 class ProductImageInlineForm(forms.ModelForm):
     """Class ProductImageInlineForm. Custom form for django admin panel.
 
-     Class is used for ProductImage (InlineModelAdmin).
+    Class is used for ProductImage (InlineModelAdmin).
 
-     """
+    """
     class Meta:
         model = ProductImage
         fields = "__all__"
@@ -163,9 +163,9 @@ class ProductImageInlineForm(forms.ModelForm):
 class ProductReviewForm(forms.ModelForm):
     """Class ProductReviewForm. Custom form for django admin panel.
 
-     Class is used for ProductReview (admin.ModelAdmin).
+    Class is used for ProductReview (admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = ProductReview
         fields = "__all__"

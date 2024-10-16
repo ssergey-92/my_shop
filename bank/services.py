@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from app_logger import app_logger
 from schema import PaymentDetails
 
+
 class PaymentHandler:
     _fernet = Fernet(bytes(os_getenv("PAYMENT_KEY"), os_getenv("ENCODING")))
     _server_error = "Internal Server Error!"
@@ -45,7 +46,7 @@ class PaymentHandler:
                 response_data = (cls._successful_payment_msg, 200)
         except ValidationError as exc:
             app_logger.info(tb_print_exception(exc))
-            response_data = [cls._payment_data_error , 400]
+            response_data = [cls._payment_data_error, 400]
         except InvalidToken as exc:
             app_logger.error(tb_print_exception(exc))
             response_data = (cls._security_error, 400)

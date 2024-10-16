@@ -41,9 +41,7 @@ class PaymentDetails(BaseModel):
         if len(code) == CVV_CODE_LENGTH or code.isdigit():
             return code
 
-        raise ValueError(
-            f"CVV code must be {CVV_CODE_LENGTH} digits long!"
-        )
+        raise ValueError(f"CVV code must be {CVV_CODE_LENGTH} digits long!")
 
     @field_validator("name", mode="after")
     @classmethod

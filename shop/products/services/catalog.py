@@ -5,7 +5,7 @@ from typing import Optional
 
 from django.core.cache import cache
 from django.db import models
-from django.db.models import Case, Count, F, Sum, QuerySet, Q,  When
+from django.db.models import Case, Count, F, Sum, QuerySet, Q, When
 from django.http import QueryDict
 from django.utils.timezone import now
 
@@ -31,15 +31,13 @@ class CatalogHandler:
     """Class for handling business logic of catalog related endpoints."""
 
     _base_query_set = (
-            Product.objects.select_related("category").
-            prefetch_related("images", "reviews", "tags").
-            distinct()
+        Product.objects.select_related("category").
+        prefetch_related("images", "reviews", "tags").
+        distinct()
     )
 
     @classmethod
-    def get_catalog_response(
-            cls, search_details: QueryDict
-    ) -> Response:
+    def get_catalog_response(cls, search_details: QueryDict) -> Response:
         """Handle logic to get Products as per catalog search details.
 
         If search_details is cached then return cached response.
@@ -82,18 +80,19 @@ class CatalogHandler:
     def _get_validated_search_details(query_params: QueryDict) -> dict:
         """Validate and sort request query params."""
 
-        query_params = CatalogQueryParamsSerializer(data={
-           "name": query_params.get("filter[name]"),
-            "minPrice": query_params.get("filter[minPrice]"),
-            "maxPrice": query_params.get("filter[maxPrice]"),
-            "freeDelivery": query_params.get("filter[freeDelivery]"),
-            "available": query_params.get("filter[available]"),
-            "category": query_params.get("category", None),
-            "currentPage": query_params.get("currentPage"),
-            "limit": query_params.get("limit"),
-            "sort": query_params.get("sort"),
-            "sortType": query_params.get("sortType"),
-            "tags": query_params.getlist("tags[]"),
+        query_params = CatalogQueryParamsSerializer(
+            data={
+                "name": query_params.get("filter[name]"),
+                "minPrice": query_params.get("filter[minPrice]"),
+                "maxPrice": query_params.get("filter[maxPrice]"),
+                "freeDelivery": query_params.get("filter[freeDelivery]"),
+                "available": query_params.get("filter[available]"),
+                "category": query_params.get("category", None),
+                "currentPage": query_params.get("currentPage"),
+                "limit": query_params.get("limit"),
+                "sort": query_params.get("sort"),
+                "sortType": query_params.get("sortType"),
+                "tags": query_params.getlist("tags[]"),
             },
         )
         query_params.is_valid(raise_exception=True)

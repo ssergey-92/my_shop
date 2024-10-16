@@ -6,7 +6,7 @@ unavailable_image = "Image is currently unavailable!"
 
 
 def get_category_image_saving_path(
-        instance: "CategoryImage", filename: str,
+    instance: "CategoryImage", filename: str,
 ) -> str:
     """Create saving path for image of Category."""
 
@@ -21,7 +21,6 @@ class CategoryImage(models.Model):
         null=False,
     )
     alt = models.CharField(default=unavailable_image, max_length=150)
-
 
     class Meta:
         verbose_name = "Category: image"

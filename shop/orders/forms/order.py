@@ -8,21 +8,20 @@ from orders.models import Order
 from orders.validators import validate_address, validate_city_name
 
 
-
 class OrderForm(forms.ModelForm):
     """Class OrderForm. Custom form for django admin panel.
 
-     Class is used for Order (admin.ModelAdmin).
+    Class is used for Order (admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = "__all__"
 
     def clean_receiver_fullname(self) -> Optional[str]:
         """Add extra validation for 'receiver_fullname' field."""
 
-        full_name = self.cleaned_data['receiver_fullname']
+        full_name = self.cleaned_data["receiver_fullname"]
         if full_name is None:
             return
 
@@ -36,7 +35,7 @@ class OrderForm(forms.ModelForm):
     def clean_receiver_phone(self) -> Optional[str]:
         """Add extra validation for 'receiver_phone' field."""
 
-        phone = self.cleaned_data.get('receiver_phone')
+        phone = self.cleaned_data.get("receiver_phone")
         if phone is None:
             return
 
@@ -50,7 +49,7 @@ class OrderForm(forms.ModelForm):
     def clean_city(self) -> Optional[str]:
         """Add extra validation for 'city' field."""
 
-        city = self.cleaned_data.get('city')
+        city = self.cleaned_data.get("city")
         if city is None:
             return
 
@@ -63,7 +62,7 @@ class OrderForm(forms.ModelForm):
     def clean_address(self) -> Optional[str]:
         """Add extra validation for 'address' field."""
 
-        address = self.cleaned_data.get('address')
+        address = self.cleaned_data.get("address")
         if address is None:
             return
 

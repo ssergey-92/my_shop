@@ -23,7 +23,7 @@ def listen_order_payment_status() -> None:
     try:
         for msg in pubsub.listen():
             app_logger.debug(f"Received {msg=} from {ORDER_PAYMENT_CHANNEL=}")
-            if msg['type'] == 'message':
+            if msg["type"] == "message":
                 data = json_loads(msg["data"])
                 PaymentHandler.update_order_payment_details(data)
     except Exception as exc:

@@ -37,7 +37,7 @@ class OrderAndProduct(models.Model):
 
     @classmethod
     def bulk_add(
-            cls, products_data: list[dict], order_id: int,
+        cls, products_data: list[dict], order_id: int,
     ) -> None:
         """Bulk create instances."""
 
@@ -108,7 +108,7 @@ class OrderAndProduct(models.Model):
             self.save()
 
     def custom_update(
-            self, previous_total_price: Decimal, previous_total_qnty: int,
+        self, previous_total_price: Decimal, previous_total_qnty: int,
     ) -> None:
         """Update instance in transaction with related objects updates.
 
@@ -144,8 +144,9 @@ class OrderAndProduct(models.Model):
 
 class Order(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    receiver_fullname = models.CharField(max_length=100, null=True,
-                                         blank=False)
+    receiver_fullname = models.CharField(
+        max_length=100, null=True, blank=False,
+    )
     receiver_email = models.EmailField(max_length=50, null=True, blank=False)
     receiver_phone = models.CharField(max_length=12, null=True, blank=False)
     products_cost = models.DecimalField(
@@ -233,7 +234,7 @@ class Order(models.Model):
 
     @classmethod
     def reset_delivery_related_costs(
-            cls, order_id: int, delivery_cost: Decimal,
+        cls, order_id: int, delivery_cost: Decimal,
     ) -> None:
         """Reset delivery and total costs."""
 

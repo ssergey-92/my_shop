@@ -51,14 +51,14 @@ class ProfileHandler:
                 OutProfileSerializer(profile).data, cls._http_success,
             )
         except Profile.DoesNotExist as exc:
-            return Response({"error": str(exc)} ,cls._http_bad_request)
+            return Response({"error": str(exc)}, cls._http_bad_request)
         except (Profile.MultipleObjectsReturned, Exception) as exc:
             app_logger.error(tb_format_exc())
             return Response(server_error, cls._http_internal_error)
 
     @classmethod
     def update_own_avatar(
-            cls, avatar_file: InMemoryUploadedFile, user_id: int,
+        cls, avatar_file: InMemoryUploadedFile, user_id: int,
     ) -> Response:
         """Handle logic for updating user's avatar.
 
@@ -76,14 +76,14 @@ class ProfileHandler:
             profile.set_new_avatar(avatar_file)
             return Response(cls._successful_avatar_update, cls._http_success)
         except Profile.DoesNotExist as exc:
-            return Response({"error": str(exc)} ,cls._http_bad_request)
+            return Response({"error": str(exc)}, cls._http_bad_request)
         except (Profile.MultipleObjectsReturned, Exception) as exc:
             app_logger.error(tb_format_exc())
             return Response(server_error, cls._http_internal_error)
 
     @classmethod
     def update_own_profile(
-            cls, profile_details: dict, user_id: int
+        cls, profile_details: dict, user_id: int
     ) -> Response:
         """Handle logic for updating user profile details.
 
@@ -109,7 +109,7 @@ class ProfileHandler:
 
     @classmethod
     def update_own_password(
-            cls, password_details: dict, user: User,
+        cls, password_details: dict, user: User,
     ) -> Response:
         """Handle logic for updating user password.
 

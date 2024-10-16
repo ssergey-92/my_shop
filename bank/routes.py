@@ -7,7 +7,7 @@ from services import PaymentHandler
 app = Flask("my_bank")
 
 
-@app.route('/users/payment', methods=['POST'])
+@app.route("/users/payment", methods=["POST"])
 def charge_user() -> tuple[bytes, int]:
     """Charge payment form user's card."""
 

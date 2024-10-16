@@ -14,6 +14,7 @@ address_error = (
     "digits, comma, digits and space! Min address length is 5 symbols!"
 )
 
+
 def validate_city_name(city_name: str) -> Optional[str]:
     """Check that city name has correct format."""
 

@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_404_NOT_FOUND,
-    HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_400_BAD_REQUEST,
 )
 
 from .common import apply_pagination_to_qs, get_pagination_last_page
@@ -69,7 +70,6 @@ class ProductHandler:
             app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     @staticmethod
     def get_banners_products_response() -> Response:
         """Get banners products (3 random active products)."""
@@ -112,8 +112,8 @@ class ProductHandler:
                 "items": cls._get_sales_products_data(current_page),
                 "currentPage": current_page,
                 "lastPage": get_pagination_last_page(
-                        Product.get_sales_products().count()
-                    )
+                    Product.get_sales_products().count()
+                ),
             }
             response_data = (sales_products_details, HTTP_200_OK)
         except ValidationError as exc:
@@ -133,14 +133,13 @@ class ProductHandler:
         try:
             product = Product.get_by_id_with_prefetch(product_id)
             product_details = OutProductFullSerializer(product)
-            return Response(product_details.data,HTTP_200_OK)
+            return Response(product_details.data, HTTP_200_OK)
         except Product.DoesNotExist:
             app_logger.info(f"Product with id {product_id} does not exist!")
             return Response(product_id_error, HTTP_404_NOT_FOUND)
         except Exception:
             app_logger.error(tb_format_exc())
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     @staticmethod
     def _get_sales_products_data(
@@ -153,5 +152,3 @@ class ProductHandler:
             sales_products_qs, current_page, limit,
         )
         return OutSalesProductSerializer(sales_products_qs, many=True).data
-
-

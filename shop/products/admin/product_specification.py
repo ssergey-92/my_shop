@@ -31,7 +31,7 @@ class ProductInline(admin.StackedInline):
         return qs.filter(product__is_active=True)
 
     def formfield_for_foreignkey(
-            self, db_field: {FileField.formfield}, request: HttpRequest, **kwargs
+        self, db_field: {FileField.formfield}, request: HttpRequest, **kwargs
     ) -> Any:
         """Override method. Filter product_id to show active only."""
 

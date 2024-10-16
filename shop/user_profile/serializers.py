@@ -1,4 +1,5 @@
 """App serializers for django rest framework."""
+
 from typing import Optional
 
 from rest_framework import serializers
@@ -48,7 +49,7 @@ class InProfileSerializer(serializers.Serializer):
             "unique_email": instance["email"],
         }
         if instance.get("phone", None):
-            formated_instance["unique_phone"]  = instance["phone"]
+            formated_instance["unique_phone"] = instance["phone"]
 
         return formated_instance
 

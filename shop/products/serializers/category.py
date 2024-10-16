@@ -50,6 +50,7 @@ class OutSubcategorySerializer(serializers.ModelSerializer):
         else:
             return "Not set"
 
+
 class OutCategoriesTreeSerializer(serializers.ModelSerializer):
     """Class is used for serializing categories tree.
 

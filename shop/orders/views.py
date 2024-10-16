@@ -25,6 +25,7 @@ class BasketView(APIView):
 
         return BasketHandler.remove_product(request)
 
+
 class OrderView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -45,6 +46,7 @@ class OrderView(APIView):
         return OrderHandler.create_init_order(
             request.data, request.user, request.session,
         )
+
 
 class PaymentView(APIView):
     permission_classes = (IsAuthenticated,)

@@ -13,7 +13,6 @@ class BasketAddItemSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True, allow_null=False)
     count = serializers.IntegerField(required=True, allow_null=False)
 
-
     def validate(self, data) -> dict:
         """Add extra validation product id and count .
 

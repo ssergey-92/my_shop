@@ -14,6 +14,7 @@ from .forms import ProfileForm
 from .models import Profile
 from common.admin import archive_items, restore_items
 
+
 class ProfileInline(admin.StackedInline):
     """Class Profile Inline for django admin panel."""
 
@@ -91,7 +92,6 @@ class CustomUserAdmin(UserAdmin):
         qs = super().get_queryset(request)
         return qs.select_related("profile", "profile__avatar")
 
-
     def delete_model(self, request: HttpRequest, obj: User) -> None:
         """Override method. Model instance is archived instead of deletion."""
 
@@ -99,7 +99,7 @@ class CustomUserAdmin(UserAdmin):
         obj.save()
 
     def delete_queryset(
-            self, request: HttpRequest, queryset: QuerySet,
+        self, request: HttpRequest, queryset: QuerySet,
     ) -> None:
         """Override method. Instances are archived instead of deletion."""
 

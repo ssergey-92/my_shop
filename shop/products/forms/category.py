@@ -22,9 +22,9 @@ can_not_add_subcategories = "Can not add subcategory for this category! "
 class CategoryImageForm(forms.ModelForm):
     """Class CategoryImageForm. Custom form for django admin panel.
 
-     Class is used for CategoryImag(admin.ModelAdmin).
+    Class is used for CategoryImag(admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = CategoryImage
         fields = ["src", "alt"]
@@ -45,9 +45,9 @@ class CategoryImageForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     """Class CategoryForm. Custom form for django admin panel.
 
-     Class is used for Category(admin.ModelAdmin).
+    Class is used for Category(admin.ModelAdmin).
 
-     """
+    """
     class Meta:
         model = Category
         fields = ["id", "title", "parent", "image", "is_active"]
@@ -62,10 +62,10 @@ class CategoryForm(forms.ModelForm):
         parent_category = self.cleaned_data.get("parent")
         validation_error = ""
         app_logger.debug(f"{self.instance=} {parent_category=}")
-        if not parent_category: # root Category
+        if not parent_category:  # root Category
             return None
 
-        if not self.instance.id: # new Category created
+        if not self.instance.id:  # new Category created
             validation_error = validate_parent_category_nesting(
                 parent_category.id,
             )
@@ -94,9 +94,9 @@ class CategoryForm(forms.ModelForm):
 class CategoryInlineForm(forms.ModelForm):
     """Class CategoryInlineForm. Custom form for django admin panel.
 
-     Class is used for Category.subcategories (InlineModelAdmin).
+    Class is used for Category.subcategories (InlineModelAdmin).
 
-     """
+    """
     class Meta:
         model = Category
         fields = ["title", "parent", "image", "is_active"]

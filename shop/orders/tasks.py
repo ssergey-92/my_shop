@@ -58,7 +58,7 @@ def conduct_order_payment(order_id: int, payment_details: dict) -> None:
             {
                 "order_id": order_id,
                 "order_status": order_status,
-                "details": details
+                "details": details,
             }
         )
         redis_client.publish(channel=ORDER_PAYMENT_CHANNEL, message=msg)

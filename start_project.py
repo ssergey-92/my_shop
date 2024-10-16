@@ -3,6 +3,7 @@
 Build and start docker compose. After catching signal KeyboardInterrupt
 stop and remove docker compose containers.
 """
+
 from signal import SIGINT, signal
 from subprocess import run as subprocess_run
 from typing import Optional

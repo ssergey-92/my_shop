@@ -10,14 +10,16 @@ from orders.services import OrderedProductHandler
 class OrderedProductInlineForm(forms.ModelForm):
     """Class OrderedProductInlineForm. Custom form for django admin panel.
 
-     Class is used for OrderedProduct (admin.StackedInline).
+    Class is used for OrderedProduct (admin.StackedInline).
 
-     """
+    """
     current_price = forms.DecimalField(
         label='Current Price', required=False, max_digits=10, decimal_places=2,
     )
     purchased_price = forms.DecimalField(
-        label='Purchased Price', required=False, max_digits=10,
+        label='Purchased Price',
+        required=False,
+        max_digits=10,
         decimal_places=2,
     )
 
@@ -43,7 +45,7 @@ class OrderedProductInlineForm(forms.ModelForm):
 
     @staticmethod
     def _validate_product_extra_qnty(
-            previous_qnty: int, new_qnty: int, available_qnty: Optional[int],
+        previous_qnty: int, new_qnty: int, available_qnty: Optional[int],
     ) -> None:
         """Validate product available quantity for aditing to order.
 
@@ -60,12 +62,12 @@ class OrderedProductInlineForm(forms.ModelForm):
                 "error": (
                     f"You can add extra {available_qnty} items to ordered"
                     f"{previous_qnty}! Total {previous_qnty + available_qnty}."
-                )
+                ),
             }
         else:
             error_msg = {
                 "field": "total_quantity",
-                "error": f"{available_qnty} items are available to purchase!"
+                "error": f"{available_qnty} items are available to purchase!",
             }
         raise ValidationError(error_msg)
 
@@ -126,7 +128,7 @@ class OrderedProductInlineForm(forms.ModelForm):
                         cleaned_data["previous_total_qnty"],
                         cleaned_data["previous_total_price"],
                         cleaned_data["total_quantity"],
-                        cleaned_data["current_price"]
+                        cleaned_data["current_price"],
                     )
                 )
         except ValidationError as exc:

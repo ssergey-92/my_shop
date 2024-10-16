@@ -35,7 +35,7 @@ from orders.serializers import (
 
 empty_order_error = {"error": "Order should include at least 1 Product!"}
 unavailable_products_error = "Following products are not available: {products}"
-purchased_qnty_error  = (
+purchased_qnty_error = (
     "There are {available_qnty} '{title}' available instead of "
     "{purchased_qnty}!"
 )
@@ -78,7 +78,7 @@ class OrderHandler:
 
     @classmethod
     def create_init_order(
-            cls, order_details: dict, user: User, session: SessionStore,
+        cls, order_details: dict, user: User, session: SessionStore,
     ) -> Response:
         """Handle logic for creating 'init' order.
 
@@ -119,7 +119,7 @@ class OrderHandler:
             return Response(server_error, HTTP_500_INTERNAL_SERVER_ERROR)
 
     @classmethod
-    def confirm_order(cls, order_details:dict, order_id: int) -> Response:
+    def confirm_order(cls, order_details: dict, order_id: int) -> Response:
         """Handle logic for confirming order.
 
         If request body data is valid then update init order(order_id).
@@ -165,7 +165,7 @@ class OrderHandler:
 
     @classmethod
     def _update_init_order(
-            cls, init_order: Order, confirm_order_data: dict,
+        cls, init_order: Order, confirm_order_data: dict,
     ) -> None:
         """Update init order(status=created) with data from 'confirm order'."""
 
@@ -185,7 +185,7 @@ class OrderHandler:
             init_order.products_cost, init_order.delivery_type
         )
         init_order.total_cost = (
-                init_order.delivery_cost + init_order.products_cost
+            init_order.delivery_cost + init_order.products_cost
         )
         init_order.save()
 
@@ -203,7 +203,6 @@ class OrderHandler:
 
         return {"products": products, "cost": order_cost}
 
-
     @staticmethod
     def _raise_unavailable_products_error(products_ids: list[int]) -> None:
         """Raise error if product in order is not available in stock."""
@@ -216,7 +215,7 @@ class OrderHandler:
 
     @staticmethod
     def _reduce_stock_products(
-            stock_products: QuerySet, ordered_products: dict,
+        stock_products: QuerySet, ordered_products: dict,
     ) -> None:
         """Reduce stock products quantity according to ordered quantity."""
 

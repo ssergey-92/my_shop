@@ -2,10 +2,11 @@ from django.db.models import QuerySet
 
 from products.constants import DEFAULT_PAGINATION_LIMIT
 
+
 def apply_pagination_to_qs(
-        query_set: QuerySet,
-        current_page: int,
-        limit: int = DEFAULT_PAGINATION_LIMIT,
+    query_set: QuerySet,
+    current_page: int,
+    limit: int = DEFAULT_PAGINATION_LIMIT,
 ) -> QuerySet:
     """Apply pagination to queryset as per current page and limit."""
 
@@ -14,9 +15,9 @@ def apply_pagination_to_qs(
     query_set = query_set[offset:last_item]
     return query_set
 
+
 def get_pagination_last_page(
-        total_records: int,
-        page_limit: int = DEFAULT_PAGINATION_LIMIT
+    total_records: int, page_limit: int = DEFAULT_PAGINATION_LIMIT,
 ) -> int:
     """Get last page for paginated response."""
 

@@ -6,7 +6,7 @@ from typing import Optional
 from rest_framework import serializers
 
 from .product_tag import ProductTagSerializer, SpecificProductTagSerializer
-from .product_review import  ProductReviewSerializer
+from .product_review import ProductReviewSerializer
 from .product_specification import ProductSpecificationsSerializer
 from .product_image import ProductImageSerializer
 from products.models import Product, ProductImage
@@ -163,5 +163,3 @@ class OutSalesProductSerializer(serializers.ModelSerializer):
         if not images.exists():
             return [{"alt": ""}]
         return ProductImageSerializer(images, many=True).data
-
-
